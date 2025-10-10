@@ -1,0 +1,155 @@
+ 
+
+from abc import ABC, abstractmethod 
+ 
+ 
+#        ПАТТЕРН СТРАТЕГИЯ 
+ 
+class PaymentStrategy(ABC): 
+    """Интерфейс стратегии оплаты""" 
+    @abstractmethod 
+    def pay(self, amount): 
+        pass 
+ 
+ 
+class CreditCardPayment(PaymentStrategy): 
+    def pay(self, amount): 
+        print(f"Оплата {amount} тенге с помощью банковской карты выполнена успешно.") 
+ 
+ 
+class PayPalPayment(PaymentStrategy): 
+    """Оплата через PayPal""" 
+    def pay(self, amount): 
+        print(f"Оплата {amount} тенге через PayPal завершена успешно.") 
+ 
+ 
+class CryptoPayment(PaymentStrategy): 
+    """Оплата криптовалютой""" 
+    def pay(self, amount): 
+        print(f"Оплата {amount} тенге с помощью криптовалюты прошла успешно.") 
+ 
+ 
+class PaymentContext: 
+    """Контекст — использует выбранную стратегию оплаты""" 
+    def __init__(self): 
+        self._strategy = None 
+ 
+    def set_strategy(self, strategy: PaymentStrategy): 
+        self._strategy = strategy 
+ 
+    def pay(self, amount): 
+        if not self._strategy: 
+            print("Ошибка: стратегия оплаты не выбрана!") 
+            return 
+        self._strategy.pay(amount) 
+ 
+ 
+#       ПАТТЕРН НАБЛЮДАТЕЛЬ 
+ 
+class Observer(ABC): 
+    """Интерфейс наблюдателя""" 
+    @abstractmethod 
+    def update(self, currency, rate): 
+        pass 
+ 
+ 
+class Subject(ABC): 
+    """Интерфейс субъекта""" 
+    @abstractmethod 
+    def register_observer(self, observer): 
+        pass 
+ 
+    @abstractmethod 
+    def remove_observer(self, observer): 
+        pass 
+ 
+    @abstractmethod 
+    def notify_observers(self): 
+        pass 
+ 
+ 
+class CurrencyExchange(Subject): 
+    """Класс субъекта — обмен валют""" 
+    def __init__(self): 
+        self._rates = {} 
+        self._observers = [] 
+ 
+    def set_rate(self, currency, rate): 
+        """Изменение курса валюты и уведомление наблюдателей""" 
+        self._rates[currency] = rate 
+        print(f"\nИзменился курс валюты {currency}: {rate}") 
+        self.notify_observers() 
+ 
+    def register_observer(self, observer: Observer): 
+        self._observers.append(observer) 
+ 
+    def remove_observer(self, observer: Observer): 
+        self._observers.remove(observer) 
+ 
+    def notify_observers(self): 
+        for observer in self._observers: 
+            for currency, rate in self._rates.items(): 
+                observer.update(currency, rate) 
+ 
+ 
+# Конкретные наблюдатели 
+ 
+class BankObserver(Observer): 
+    def update(self, currency, rate): 
+        print(f"[Банк] Новый курс {currency}: {rate}") 
+ 
+ 
+class MobileAppObserver(Observer): 
+    def update(self, currency, rate): 
+        print(f"[Мобильное приложение] Курс {currency}: {rate}") 
+ 
+ 
+class NewsAgencyObserver(Observer): 
+    def update(self, currency, rate): 
+        print(f"[Новостное агентство] Обновление курса {currency}: {rate}") 
+ 
+ 
+#        КЛИЕНТСКИЙ КОД 
+ 
+def main(): 
+    print("=== Паттерн 'Стратегия' ===") 
+ 
+    context = PaymentContext() 
+    print("Выберите способ оплаты:") 
+    print("1 - Банковская карта") 
+    print("2 - PayPal") 
+    print("3 - Криптовалюта") 
+ 
+    choice = input("Ваш выбор: ") 
+    amount = 5000 
+ 
+    if choice == "1": 
+        context.set_strategy(CreditCardPayment()) 
+    elif choice == "2": 
+        context.set_strategy(PayPalPayment()) 
+    elif choice == "3": 
+        context.set_strategy(CryptoPayment()) 
+    else: 
+        print("Неверный выбор.") 
+        return 
+ 
+    context.pay(amount) 
+ 
+    print("\n=== Паттерн 'Наблюдатель' ===") 
+ 
+    exchange = CurrencyExchange() 
+    exchange.register_observer(BankObserver()) 
+    exchange.register_observer(MobileAppObserver()) 
+    exchange.register_observer(NewsAgencyObserver()) 
+ 
+    exchange.set_rate("USD", 470.25) 
+    exchange.set_rate("EUR", 495.80) 
+ 
+ 
+ 
+if __name__ == "__main__": 
+    main() 
+ 
+ 
+
+ 
