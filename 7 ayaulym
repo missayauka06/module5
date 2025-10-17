@@ -1,0 +1,122 @@
+# Design Patterns Module 06
+# Strategy and Observer patterns in Python
+
+from abc import ABC, abstractmethod
+
+# STRATEGY PATTERN: Payment System
+
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+
+class CreditCardPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f"Payment of {amount} using Credit Card completed.")
+
+class PayPalPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f"Payment of {amount} using PayPal completed.")
+
+class CryptoPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f"Payment of {amount} using Cryptocurrency completed.")
+
+class PaymentContext:
+    def __init__(self):
+        self._strategy = None
+
+    def set_strategy(self, strategy: PaymentStrategy):
+        self._strategy = strategy
+
+    def execute_payment(self, amount):
+        if not self._strategy:
+            print("No payment strategy selected.")
+        else:
+            self._strategy.pay(amount)
+
+# OBSERVER PATTERN: Currency Exchange
+
+class Observer(ABC):
+    @abstractmethod
+    def update(self, currency, rate):
+        pass
+
+class Subject(ABC):
+    @abstractmethod
+    def attach(self, observer):
+        pass
+
+    @abstractmethod
+    def detach(self, observer):
+        pass
+
+    @abstractmethod
+    def notify(self):
+        pass
+
+class CurrencyExchange(Subject):
+    def __init__(self):
+        self._observers = []
+        self._rates = {}
+
+    def attach(self, observer):
+        self._observers.append(observer)
+
+    def detach(self, observer):
+        self._observers.remove(observer)
+
+    def set_rate(self, currency, rate):
+        self._rates[currency] = rate
+        self.notify()
+
+    def notify(self):
+        for observer in self._observers:
+            for currency, rate in self._rates.items():
+                observer.update(currency, rate)
+
+class MobileAppObserver(Observer):
+    def update(self, currency, rate):
+        print(f"[MobileApp] {currency} rate updated to {rate}.")
+
+class WebDashboardObserver(Observer):
+    def update(self, currency, rate):
+        print(f"[WebDashboard] {currency}: {rate} (shown on dashboard)")
+
+class TradingBotObserver(Observer):
+    def update(self, currency, rate):
+        print(f"[TradingBot] Adjusting strategy for {currency} at rate {rate}.")
+
+# DEMONSTRATION
+if __name__ == "__main__":
+    print("=== STRATEGY PATTERN DEMO ===")
+    payment = PaymentContext()
+    
+    method = input("Choose payment method (card/paypal/crypto): ").lower()
+
+    if method == "card":
+        payment.set_strategy(CreditCardPayment())
+    elif method == "paypal":
+        payment.set_strategy(PayPalPayment())
+    elif method == "crypto":
+        payment.set_strategy(CryptoPayment())
+    else:
+        print("Invalid choice.")
+
+    payment.execute_payment(250)
+
+    print("\n=== OBSERVER PATTERN DEMO ===")
+    exchange = CurrencyExchange()
+    app = MobileAppObserver()
+    web = WebDashboardObserver()
+    bot = TradingBotObserver()
+
+    exchange.attach(app)
+    exchange.attach(web)
+    exchange.attach(bot)
+
+    exchange.set_rate("USD", 470.5)
+    exchange.set_rate("EUR", 505.7)
+
+    exchange.detach(bot)
+    exchange.set_rate("BTC", 6800000)
