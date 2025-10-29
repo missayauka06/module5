@@ -1,0 +1,177 @@
+
+from abc import ABC, abstractmethod
+
+#                🧩 ЧАСТЬ 1 — ПАТТЕРН ДЕКОРАТОР
+
+# --- 1. Базовый интерфейс напитка ---
+class Beverage(ABC):
+    @abstractmethod
+    def get_description(self) -> str:
+        pass
+
+    @abstractmethod
+    def cost(self) -> float:
+        pass
+
+
+# --- 2. Конкретные напитки ---
+class Espresso(Beverage):
+    def get_description(self) -> str:
+        return "Эспрессо"
+
+    def cost(self) -> float:
+        return 3.00
+
+
+class Tea(Beverage):
+    def get_description(self) -> str:
+        return "Чай"
+
+    def cost(self) -> float:
+        return 2.50
+
+
+class Latte(Beverage):
+    def get_description(self) -> str:
+        return "Латте"
+
+    def cost(self) -> float:
+        return 3.50
+
+
+class Mocha(Beverage):
+    def get_description(self) -> str:
+        return "Мокко"
+
+    def cost(self) -> float:
+        return 3.75
+
+
+# --- 3. Абстрактный декоратор ---
+class BeverageDecorator(Beverage):
+    def __init__(self, beverage: Beverage):
+        self._beverage = beverage
+
+    @abstractmethod
+    def get_description(self) -> str:
+        pass
+
+
+# --- 4. Конкретные декораторы (добавки) ---
+class Milk(BeverageDecorator):
+    def get_description(self) -> str:
+        return self._beverage.get_description() + ", молоко"
+
+    def cost(self) -> float:
+        return self._beverage.cost() + 0.50
+
+
+class Sugar(BeverageDecorator):
+    def get_description(self) -> str:
+        return self._beverage.get_description() + ", сахар"
+
+    def cost(self) -> float:
+        return self._beverage.cost() + 0.20
+
+
+class WhippedCream(BeverageDecorator):
+    def get_description(self) -> str:
+        return self._beverage.get_description() + ", взбитые сливки"
+
+    def cost(self) -> float:
+        return self._beverage.cost() + 0.70
+
+
+class Syrup(BeverageDecorator):
+    def get_description(self) -> str:
+        return self._beverage.get_description() + ", сироп"
+
+    def cost(self) -> float:
+        return self._beverage.cost() + 0.60
+
+
+#                💳 ЧАСТЬ 2 — ПАТТЕРН АДАПТЕР
+
+# --- 1. Интерфейс существующей системы ---
+class IPaymentProcessor(ABC):
+    @abstractmethod
+    def process_payment(self, amount: float):
+        pass
+
+
+# --- 2. Реализация PayPal ---
+class PayPalPaymentProcessor(IPaymentProcessor):
+    def process_payment(self, amount: float):
+        print(f"[PayPal] Обработка платежа на сумму {amount:.2f} $")
+
+
+# --- 3. Сторонний сервис Stripe ---
+class StripePaymentService:
+    def make_transaction(self, total_amount: float):
+        print(f"[Stripe] Выполняется транзакция на сумму {total_amount:.2f} $")
+
+
+# --- 4. Адаптер Stripe → IPaymentProcessor ---
+class StripePaymentAdapter(IPaymentProcessor):
+    def __init__(self, stripe_service: StripePaymentService):
+        self._stripe_service = stripe_service
+
+    def process_payment(self, amount: float):
+        self._stripe_service.make_transaction(amount)
+
+
+# --- 5. Ещё один сторонний сервис (YooMoney) ---
+class YooMoneyService:
+    def send_payment(self, amount: float):
+        print(f"[YooMoney] Платёж на сумму {amount:.2f} $ отправлен.")
+
+
+class YooMoneyAdapter(IPaymentProcessor):
+    def __init__(self, yoo_service: YooMoneyService):
+        self._yoo_service = yoo_service
+
+    def process_payment(self, amount: float):
+        self._yoo_service.send_payment(amount)
+
+
+#                ☕ КЛИЕНТСКИЙ КОД
+
+if __name__ == "__main__":
+    print("=== КАФЕ: Формирование заказа ===")
+
+    # Пример 1 — Эспрессо с добавками
+    drink = Espresso()
+    drink = Milk(drink)
+    drink = Sugar(drink)
+    drink = WhippedCream(drink)
+
+    print("Ваш заказ:", drink.get_description())
+    print("Итоговая стоимость:", f"{drink.cost():.2f} $\n")
+
+    # Пример 2 — Чай с сиропом и молоком
+    drink2 = Tea()
+    drink2 = Syrup(drink2)
+    drink2 = Milk(drink2)
+    print("Ваш заказ:", drink2.get_description())
+    print("Итоговая стоимость:", f"{drink2.cost():.2f} $\n")
+
+    # ========================================================
+    print("=== СИСТЕМА ОПЛАТЫ ===")
+
+    amount_to_pay = drink.cost() + drink2.cost()
+
+    print(f"Общая сумма к оплате: {amount_to_pay:.2f} $\n")
+
+    # Оплата через PayPal
+    paypal = PayPalPaymentProcessor()
+    paypal.process_payment(amount_to_pay)
+
+    # Оплата через Stripe (через адаптер)
+    stripe_adapter = StripePaymentAdapter(StripePaymentService())
+    stripe_adapter.process_payment(amount_to_pay)
+
+    # Оплата через YooMoney (через адаптер)
+    yoo_adapter = YooMoneyAdapter(YooMoneyService())
+    yoo_adapter.process_payment(amount_to_pay)
+
+    print("\n=== Спасибо за покупку! ===")
