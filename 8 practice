@@ -1,0 +1,535 @@
+
+from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
+from typing import List, Dict, Any, Callable, Optional
+import csv
+import io
+import logging
+import random
+import uuid
+import os
+
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+logger = logging.getLogger("reports_and_logistics")
+
+# PART 1: REPORTS (Decorator)
+
+class IReport(ABC):
+    @abstractmethod
+    def generate(self) -> str:
+        """Возвращает строковое представление отчёта (можно быть CSV/JSON/PDF content или текст)."""
+        pass
+
+def generate_sample_sales(n=10):
+    """Генерация фиктивных продаж: список словарей"""
+    now = datetime.now()
+    sales = []
+    for i in range(n):
+        date = now - timedelta(days=random.randint(0, 60))
+        sale = {
+            "order_id": str(uuid.uuid4())[:8],
+            "date": date,
+            "amount": round(random.uniform(10.0, 500.0), 2),
+            "customer_id": f"cust{random.randint(1, 20)}",
+            "product": random.choice(["Widget", "Gadget", "Thing"]),
+            "quantity": random.randint(1, 5)
+        }
+        sales.append(sale)
+    return sales
+
+def generate_sample_users(n=10):
+    users = []
+    for i in range(1, n+1):
+        user = {
+            "user_id": f"u{i}",
+            "name": random.choice(["Alice", "Bob", "Charlie", "Diana", "Eve"]),
+            "signup_date": datetime.now() - timedelta(days=random.randint(0, 365)),
+            "country": random.choice(["KZ", "RU", "US", "DE"]),
+            "is_premium": random.choice([True, False])
+        }
+        users.append(user)
+    return users
+
+class SalesReport(IReport):
+    def __init__(self, data: Optional[List[Dict[str, Any]]] = None):
+        self.data = data if data is not None else generate_sample_sales(20)
+
+    def generate(self) -> str:
+        lines = []
+        lines.append("Sales Report")
+        lines.append(f"Generated: {datetime.now()}")
+        lines.append("")
+        for s in sorted(self.data, key=lambda x: x["date"]):
+            lines.append(f"{s['date'].strftime('%Y-%m-%d')} | {s['order_id']} | {s['customer_id']} | {s['product']} x{s['quantity']} | {s['amount']}")
+        return "\n".join(lines)
+
+class UserReport(IReport):
+    def __init__(self, data: Optional[List[Dict[str, Any]]] = None):
+        self.data = data if data is not None else generate_sample_users(15)
+
+    def generate(self) -> str:
+        lines = []
+        lines.append("User Report")
+        lines.append(f"Generated: {datetime.now()}")
+        lines.append("")
+        for u in sorted(self.data, key=lambda x: x["signup_date"]):
+            lines.append(f"{u['signup_date'].strftime('%Y-%m-%d')} | {u['user_id']} | {u['name']} | {u['country']} | premium={u['is_premium']}")
+        return "\n".join(lines)
+
+class ReportDecorator(IReport):
+    def __init__(self, report: IReport):
+        self._report = report
+
+    def generate(self) -> str:
+        return self._report.generate()
+
+
+class DateFilterDecorator(ReportDecorator):
+    def __init__(self, report: IReport, start_date: datetime, end_date: datetime, date_field: str = "date"):
+        super().__init__(report)
+        self.start = start_date
+        self.end = end_date
+        self.date_field = date_field  # field name in data entries that holds datetime
+
+    def generate(self) -> str:
+        # Attempt to access underlying data list if exists
+        logger.info(f"Applying DateFilter: {self.start.date()} - {self.end.date()} on field '{self.date_field}'")
+        if hasattr(self._report, "data") and isinstance(self._report.data, list):
+            filtered = [d for d in self._report.data if isinstance(d.get(self.date_field, None), datetime) and (self.start <= d[self.date_field] <= self.end)]
+            # clone report with filtered data
+            cloned = self._clone_with_data(filtered)
+            return cloned.generate()
+        else:
+            logger.warning("DateFilterDecorator: underlying report has no 'data' list or date field; returning original")
+            return super().generate()
+
+    def _clone_with_data(self, data):
+        # attempt to construct same class as underlying report with new data
+        cls = self._report.__class__
+        try:
+            new_report = cls(data)
+            return new_report
+        except Exception as e:
+            logger.error(f"Cannot clone report class {cls}: {e}")
+            return self._report
+
+class SortingDecorator(ReportDecorator):
+    def __init__(self, report: IReport, key_func: Callable[[Dict[str, Any]], Any], reverse: bool = False):
+        super().__init__(report)
+        self.key_func = key_func
+        self.reverse = reverse
+
+    def generate(self) -> str:
+        logger.info("Applying SortingDecorator")
+        if hasattr(self._report, "data") and isinstance(self._report.data, list):
+            sorted_data = sorted(self._report.data, key=self.key_func, reverse=self.reverse)
+            cloned = self._clone_with_data(sorted_data)
+            return cloned.generate()
+        else:
+            logger.warning("SortingDecorator: no data to sort; returning original")
+            return super().generate()
+
+    def _clone_with_data(self, data):
+        cls = self._report.__class__
+        try:
+            new_report = cls(data)
+            return new_report
+        except Exception as e:
+            logger.error(f"SortingDecorator clone error: {e}")
+            return self._report
+
+class CsvExportDecorator(ReportDecorator):
+    def __init__(self, report: IReport, filename: Optional[str] = None):
+        super().__init__(report)
+        self.filename = filename or f"report_{int(datetime.now().timestamp())}.csv"
+
+    def generate(self) -> str:
+        # Try to export report data to CSV and return path + summary
+        logger.info(f"Exporting report to CSV: {self.filename}")
+        if hasattr(self._report, "data") and isinstance(self._report.data, list) and len(self._report.data) > 0:
+            data = self._report.data
+            # write CSV to in-memory stream then to file
+            out = io.StringIO()
+            fieldnames = list(data[0].keys())
+            writer = csv.DictWriter(out, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in data:
+                # convert datetimes to isoformat for CSV
+                row_copy = {k: (v.isoformat() if isinstance(v, datetime) else v) for k, v in row.items()}
+                writer.writerow(row_copy)
+            csv_text = out.getvalue()
+            # write to file
+            with open(self.filename, "w", encoding="utf-8") as f:
+                f.write(csv_text)
+            logger.info(f"CSV written to {os.path.abspath(self.filename)}")
+            return f"CSV exported to {os.path.abspath(self.filename)} (rows={len(data)})"
+        else:
+            logger.warning("CsvExportDecorator: no tabular data found; returning original text")
+            return super().generate()
+
+class PdfExportDecorator(ReportDecorator):
+    def __init__(self, report: IReport, filename: Optional[str] = None):
+        super().__init__(report)
+        self.filename = filename or f"report_{int(datetime.now().timestamp())}.pdf"
+
+    def generate(self) -> str:
+        logger.info(f"Exporting report to (simulated) PDF: {self.filename}")
+        content = self._report.generate()
+        try:
+            with open(self.filename, "w", encoding="utf-8") as f:
+                f.write("---- Simulated PDF report ----\n")
+                f.write(content)
+            logger.info(f"PDF (simulated) written to {os.path.abspath(self.filename)}")
+            return f"PDF exported to {os.path.abspath(self.filename)}"
+        except Exception as e:
+            logger.error(f"PdfExportDecorator error: {e}")
+            return super().generate()
+
+# Additional decorators
+
+class SumFilterDecorator(ReportDecorator):
+    def __init__(self, report: IReport, min_sum: float = None, max_sum: float = None, amount_field: str = "amount"):
+        super().__init__(report)
+        self.min_sum = min_sum
+        self.max_sum = max_sum
+        self.amount_field = amount_field
+
+    def generate(self) -> str:
+        logger.info(f"Applying SumFilter: min={self.min_sum} max={self.max_sum}")
+        if hasattr(self._report, "data") and isinstance(self._report.data, list):
+            filtered = []
+            for d in self._report.data:
+                val = d.get(self.amount_field)
+                if isinstance(val, (int, float)):
+                    if (self.min_sum is None or val >= self.min_sum) and (self.max_sum is None or val <= self.max_sum):
+                        filtered.append(d)
+            cloned = self._clone_with_data(filtered)
+            return cloned.generate()
+        else:
+            logger.warning("SumFilterDecorator: no numeric data found; returning original")
+            return super().generate()
+
+    def _clone_with_data(self, data):
+        cls = self._report.__class__
+        try:
+            return cls(data)
+        except Exception as e:
+            logger.error(f"SumFilter clone error: {e}")
+            return self._report
+
+class UserAttributeFilterDecorator(ReportDecorator):
+    def __init__(self, report: IReport, predicate: Callable[[Dict[str, Any]], bool]):
+        super().__init__(report)
+        self.predicate = predicate
+
+    def generate(self) -> str:
+        logger.info("Applying UserAttributeFilterDecorator")
+        if hasattr(self._report, "data") and isinstance(self._report.data, list):
+            filtered = [d for d in self._report.data if self.predicate(d)]
+            cls = self._report.__class__
+            try:
+                new_report = cls(filtered)
+                return new_report.generate()
+            except Exception as e:
+                logger.error(f"UserAttrFilter clone error: {e}")
+                return self._report.generate()
+        else:
+            logger.warning("UserAttributeFilterDecorator: no data; returning original")
+            return super().generate()
+
+def apply_decorators(report: IReport, decorators: List[Dict[str, Any]]) -> IReport:
+
+    mapping = {
+        "DateFilterDecorator": DateFilterDecorator,
+        "SortingDecorator": SortingDecorator,
+        "CsvExportDecorator": CsvExportDecorator,
+        "PdfExportDecorator": PdfExportDecorator,
+        "SumFilterDecorator": SumFilterDecorator,
+        "UserAttributeFilterDecorator": UserAttributeFilterDecorator
+    }
+    current = report
+    for entry in decorators:
+        name = entry.get("name")
+        params = entry.get("params", {})
+        cls = mapping.get(name)
+        if cls is None:
+            logger.warning(f"Unknown decorator '{name}', skipping")
+            continue
+        try:
+            current = cls(current, **params)
+            logger.info(f"Applied decorator {name} with params {params}")
+        except TypeError as e:
+            logger.error(f"Failed to apply decorator {name}: {e}")
+    return current
+
+# PART 2: LOGISTICS (Adapter + Factory)
+
+class IInternalDeliveryService(ABC):
+    @abstractmethod
+    def deliver_order(self, order_id: str) -> str:
+        """Запустить доставку; вернуть tracking id / shipment id"""
+        pass
+
+    @abstractmethod
+    def get_delivery_status(self, order_id: str) -> str:
+        """Вернуть текущий статус"""
+        pass
+
+    @abstractmethod
+    def calculate_cost(self, order_id: str, weight_kg: float, distance_km: float) -> float:
+        """Рассчитать стоимость доставки"""
+        pass
+
+class InternalDeliveryService(IInternalDeliveryService):
+    def __init__(self):
+        self._store = {}  # order_id -> status
+        logger.info("InternalDeliveryService initialized")
+
+    def deliver_order(self, order_id: str) -> str:
+        tracking = f"INT-{uuid.uuid4().hex[:8]}"
+        self._store[order_id] = {"tracking": tracking, "status": "shipped"}
+        logger.info(f"Internal: order {order_id} shipped, tracking={tracking}")
+        return tracking
+
+    def get_delivery_status(self, order_id: str) -> str:
+        rec = self._store.get(order_id)
+        status = rec["status"] if rec else "not_found"
+        logger.info(f"Internal: status for {order_id} -> {status}")
+        return status
+
+    def calculate_cost(self, order_id: str, weight_kg: float, distance_km: float) -> float:
+        base = 50.0
+        cost = base + weight_kg * 10 + distance_km * 2
+        logger.info(f"Internal: cost calc for {order_id}: {cost:.2f}")
+        return round(cost, 2)
+
+
+class ExternalLogisticsServiceA:
+    # Methods: ship_item(int itemId), track_shipment(int shipmentId), compute_fee(weight, distance)
+    def __init__(self):
+        self._shipments = {}
+        logger.info("ExternalLogisticsServiceA ready")
+
+    def ship_item(self, item_id: int) -> int:
+        sid = random.randint(10000, 99999)
+        self._shipments[sid] = "in_transit"
+        logger.info(f"External A: shipped item {item_id} with sid={sid}")
+        return sid
+
+    def track_shipment(self, shipment_id: int) -> str:
+        status = self._shipments.get(shipment_id, "unknown")
+        logger.info(f"External A: track {shipment_id} -> {status}")
+        return status
+
+    def compute_fee(self, weight_kg: float, distance_km: float) -> float:
+        return 30 + weight_kg * 12 + distance_km * 1.8
+
+class ExternalLogisticsServiceB:
+    def __init__(self):
+        self._packages = {}
+        logger.info("ExternalLogisticsServiceB ready")
+
+    def send_package(self, package_info: str) -> str:
+        code = "B-" + uuid.uuid4().hex[:6]
+        self._packages[code] = "created"
+        logger.info(f"External B: package sent {code}")
+        return code
+
+    def check_package_status(self, tracking_code: str) -> str:
+        status = self._packages.get(tracking_code, "unknown")
+        logger.info(f"External B: status {tracking_code} -> {status}")
+        return status
+
+    def fee_estimate(self, weight: float, distance: float) -> float:
+        return 40 + weight * 8 + distance * 2.5
+
+class ExternalLogisticsServiceC:
+    def __init__(self):
+        self._records = {}
+        logger.info("ExternalLogisticsServiceC ready")
+
+    def arrange_shipment(self, payload_id: str) -> dict:
+        ref = "C-" + uuid.uuid4().hex[:5]
+        self._records[ref] = "queued"
+        logger.info(f"External C: arranged shipment {ref} for payload {payload_id}")
+        return {"ref": ref, "status": "queued"}
+
+    def get_status(self, ref: str) -> str:
+        status = self._records.get(ref, "not_found")
+        logger.info(f"External C: get_status {ref} -> {status}")
+        return status
+
+    def pricing(self, details: dict) -> float:
+        # details expected: {"weight":.., "distance":..}
+        w = details.get("weight", 0)
+        d = details.get("distance", 0)
+        return 20 + w * 9 + d * 2.0
+
+
+class LogisticsAdapterA(IInternalDeliveryService):
+    def __init__(self, external: ExternalLogisticsServiceA):
+        self.external = external
+        self._mapping = {}  # order_id -> sid
+
+    def deliver_order(self, order_id: str) -> str:
+        try:
+            # map order_id to an int item id (hash)
+            item_id = abs(hash(order_id)) % 100000
+            sid = self.external.ship_item(item_id)
+            self._mapping[order_id] = sid
+            logger.info(f"AdapterA: order {order_id} -> sid {sid}")
+            return str(sid)
+        except Exception as e:
+            logger.error(f"AdapterA deliver_order error: {e}")
+            raise
+
+    def get_delivery_status(self, order_id: str) -> str:
+        sid = self._mapping.get(order_id)
+        if sid is None:
+            logger.warning(f"AdapterA: unknown order {order_id}")
+            return "not_found"
+        return self.external.track_shipment(int(sid))
+
+    def calculate_cost(self, order_id: str, weight_kg: float, distance_km: float) -> float:
+        try:
+            cost = self.external.compute_fee(weight_kg, distance_km)
+            logger.info(f"AdapterA cost for {order_id}: {cost:.2f}")
+            return round(cost, 2)
+        except Exception as e:
+            logger.error(f"AdapterA calculate_cost error: {e}")
+            raise
+
+class LogisticsAdapterB(IInternalDeliveryService):
+    def __init__(self, external: ExternalLogisticsServiceB):
+        self.external = external
+        self._mapping = {}  # order_id -> tracking_code
+
+    def deliver_order(self, order_id: str) -> str:
+        try:
+            package_info = f"order:{order_id}"
+            code = self.external.send_package(package_info)
+            self._mapping[order_id] = code
+            logger.info(f"AdapterB: order {order_id} -> code {code}")
+            return code
+        except Exception as e:
+            logger.error(f"AdapterB deliver_order error: {e}")
+            raise
+
+    def get_delivery_status(self, order_id: str) -> str:
+        code = self._mapping.get(order_id)
+        if code is None:
+            logger.warning(f"AdapterB: unknown order {order_id}")
+            return "not_found"
+        return self.external.check_package_status(code)
+
+    def calculate_cost(self, order_id: str, weight_kg: float, distance_km: float) -> float:
+        try:
+            cost = self.external.fee_estimate(weight_kg, distance_km)
+            logger.info(f"AdapterB cost for {order_id}: {cost:.2f}")
+            return round(cost, 2)
+        except Exception as e:
+            logger.error(f"AdapterB calculate_cost error: {e}")
+            raise
+
+class LogisticsAdapterC(IInternalDeliveryService):
+    def __init__(self, external: ExternalLogisticsServiceC):
+        self.external = external
+        self._mapping = {}  # order_id -> ref
+
+    def deliver_order(self, order_id: str) -> str:
+        try:
+            res = self.external.arrange_shipment(order_id)
+            ref = res.get("ref")
+            self._mapping[order_id] = ref
+            logger.info(f"AdapterC: order {order_id} -> ref {ref}")
+            return ref
+        except Exception as e:
+            logger.error(f"AdapterC deliver_order error: {e}")
+            raise
+
+    def get_delivery_status(self, order_id: str) -> str:
+        ref = self._mapping.get(order_id)
+        if ref is None:
+            logger.warning(f"AdapterC: unknown order {order_id}")
+            return "not_found"
+        return self.external.get_status(ref)
+
+    def calculate_cost(self, order_id: str, weight_kg: float, distance_km: float) -> float:
+        try:
+            details = {"weight": weight_kg, "distance": distance_km}
+            cost = self.external.pricing(details)
+            logger.info(f"AdapterC cost for {order_id}: {cost:.2f}")
+            return round(cost, 2)
+        except Exception as e:
+            logger.error(f"AdapterC calculate_cost error: {e}")
+            raise
+
+class DeliveryServiceFactory:
+    @staticmethod
+    def get_service(kind: str) -> IInternalDeliveryService:
+
+        kind = kind.lower()
+        if kind == "internal":
+            return InternalDeliveryService()
+        elif kind == "external_a":
+            return LogisticsAdapterA(ExternalLogisticsServiceA())
+        elif kind == "external_b":
+            return LogisticsAdapterB(ExternalLogisticsServiceB())
+        elif kind == "external_c":
+            return LogisticsAdapterC(ExternalLogisticsServiceC())
+        else:
+            raise ValueError(f"Unknown delivery service kind '{kind}'")
+
+# DEMONSTRATION / TESTS
+
+def demo_reports():
+    print("\n=== DEMO: Reports with Decorators ===")
+    # Create sales report with sample data
+    sales = SalesReport(generate_sample_sales(25))
+    print("\n-- Base Sales Report (short):")
+    print("\n".join(sales.generate().splitlines()[:6]), "...")
+
+    # Apply date filter: last 30 days
+    end = datetime.now()
+    start = end - timedelta(days=30)
+    decorated = apply_decorators(sales, [
+        {"name": "DateFilterDecorator", "params": {"start_date": start, "end_date": end, "date_field": "date"}},
+        {"name": "SumFilterDecorator", "params": {"min_sum": 50.0}},
+        {"name": "SortingDecorator", "params": {"key_func": (lambda x: x["amount"]), "reverse": True}},
+        # Export to CSV
+        {"name": "CsvExportDecorator", "params": {"filename": "sales_last30_filtered.csv"}},
+    ])
+    result = decorated.generate()
+    print("\n-- Decorated Sales Report result:")
+    print(result)
+
+    # User report with user attribute filter and PDF export
+    users = UserReport(generate_sample_users(12))
+    decorated_users = apply_decorators(users, [
+        {"name": "UserAttributeFilterDecorator", "params": {"predicate": (lambda u: u.get("is_premium", False))}},
+        {"name": "PdfExportDecorator", "params": {"filename": "premium_users_report.pdf"}}
+    ])
+    print("\n-- Decorated User Report (premium users) result:")
+    print(decorated_users.generate())
+
+def demo_logistics():
+    print("\n=== DEMO: Logistics with Adapters & Factory ===")
+    # Use factory to get different services
+    for kind in ["internal", "external_a", "external_b", "external_c"]:
+        print(f"\n--- Using service: {kind}")
+        service = DeliveryServiceFactory.get_service(kind)
+        # create a fake order
+        order_id = f"order-{random.randint(1000,9999)}"
+        try:
+            tracking = service.deliver_order(order_id)
+            print(f"Delivered {order_id} -> tracking/ref: {tracking}")
+            status = service.get_delivery_status(order_id)
+            print(f"Status: {status}")
+            cost = service.calculate_cost(order_id, weight_kg=2.5, distance_km=120.0)
+            print(f"Estimated cost: {cost}")
+        except Exception as e:
+            print(f"Error while using {kind}: {e}")
+
+if __name__ == "__main__":
+    demo_reports()
+    demo_logistics()
