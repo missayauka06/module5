@@ -1,0 +1,184 @@
+
+from abc import ABC, abstractmethod
+
+# ЧАСТЬ 1: ПАТТЕРН ДЕКОРАТОР
+
+# --- Интерфейс напитка ---
+class IBeverage(ABC):
+    @abstractmethod
+    def get_cost(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_description(self) -> str:
+        pass
+
+
+class Coffee(IBeverage):
+    def get_cost(self):
+        return 50.0
+
+    def get_description(self):
+        return "Coffee"
+
+
+class BeverageDecorator(IBeverage):
+    def __init__(self, beverage: IBeverage):
+        self._beverage = beverage
+
+    def get_cost(self):
+        return self._beverage.get_cost()
+
+    def get_description(self):
+        return self._beverage.get_description()
+
+
+class MilkDecorator(BeverageDecorator):
+    def get_cost(self):
+        return super().get_cost() + 10.0
+
+    def get_description(self):
+        return super().get_description() + ", Milk"
+
+
+class SugarDecorator(BeverageDecorator):
+    def get_cost(self):
+        return super().get_cost() + 5.0
+
+    def get_description(self):
+        return super().get_description() + ", Sugar"
+
+
+class ChocolateDecorator(BeverageDecorator):
+    def get_cost(self):
+        return super().get_cost() + 15.0
+
+    def get_description(self):
+        return super().get_description() + ", Chocolate"
+
+
+class VanillaDecorator(BeverageDecorator):
+    def get_cost(self):
+        return super().get_cost() + 12.0
+
+    def get_description(self):
+        return super().get_description() + ", Vanilla"
+
+
+class CinnamonDecorator(BeverageDecorator):
+    def get_cost(self):
+        return super().get_cost() + 8.0
+
+    def get_description(self):
+        return super().get_description() + ", Cinnamon"
+
+
+def test_decorator():
+    print("=== ДЕКОРАТОР ===")
+    beverage = Coffee()
+    print(f"{beverage.get_description()} : {beverage.get_cost()}₸")
+
+    beverage = MilkDecorator(beverage)
+    beverage = SugarDecorator(beverage)
+    beverage = ChocolateDecorator(beverage)
+    beverage = VanillaDecorator(beverage)
+
+    print(f"{beverage.get_description()} : {beverage.get_cost()}₸\n")
+
+
+#  ЧАСТЬ 2: ПАТТЕРН АДАПТЕР
+
+
+class IPaymentProcessor(ABC):
+    @abstractmethod
+    def process_payment(self, amount: float):
+        pass
+
+    @abstractmethod
+    def refund_payment(self, amount: float):
+        pass
+
+
+class InternalPaymentProcessor(IPaymentProcessor):
+    def process_payment(self, amount):
+        print(f"Processing payment of {amount} via Internal System.")
+
+    def refund_payment(self, amount):
+        print(f"Refunding {amount} via Internal System.")
+
+
+class ExternalPaymentSystemA:
+    def make_payment(self, amount):
+        print(f"Making payment of {amount} via External System A.")
+
+    def make_refund(self, amount):
+        print(f"Making refund of {amount} via External System A.")
+
+
+class ExternalPaymentSystemB:
+    def send_payment(self, amount):
+        print(f"Sending payment of {amount} via External System B.")
+
+    def process_refund(self, amount):
+        print(f"Processing refund of {amount} via External System B.")
+
+
+class PaymentAdapterA(IPaymentProcessor):
+    def __init__(self, external_system_a: ExternalPaymentSystemA):
+        self._external_system_a = external_system_a
+
+    def process_payment(self, amount):
+        self._external_system_a.make_payment(amount)
+
+    def refund_payment(self, amount):
+        self._external_system_a.make_refund(amount)
+
+
+class PaymentAdapterB(IPaymentProcessor):
+    def __init__(self, external_system_b: ExternalPaymentSystemB):
+        self._external_system_b = external_system_b
+
+    def process_payment(self, amount):
+        self._external_system_b.send_payment(amount)
+
+    def refund_payment(self, amount):
+        self._external_system_b.process_refund(amount)
+
+
+def test_adapter():
+    print("=== АДАПТЕР ===")
+    print("1. Внутренняя система:")
+    internal = InternalPaymentProcessor()
+    internal.process_payment(100)
+    internal.refund_payment(50)
+
+    print("\n2. Внешняя система A через адаптер:")
+    adapter_a = PaymentAdapterA(ExternalPaymentSystemA())
+    adapter_a.process_payment(200)
+    adapter_a.refund_payment(100)
+
+    print("\n3. Внешняя система B через адаптер:")
+    adapter_b = PaymentAdapterB(ExternalPaymentSystemB())
+    adapter_b.process_payment(300)
+    adapter_b.refund_payment(150)
+
+
+
+
+if __name__ == "__main__":
+    test_decorator()
+    test_adapter()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
