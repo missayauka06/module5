@@ -1,0 +1,167 @@
+
+
+from abc import ABC, abstractmethod
+
+# 1. ПАТТЕРН ФАСАД — Hotel Management System
+
+class RoomBookingSystem:
+    def book_room(self, guest_name):
+        print(f" Room booked for {guest_name}")
+    def cancel_booking(self, guest_name):
+        print(f" Booking canceled for {guest_name}")
+
+class RestaurantSystem:
+    def book_table(self, guest_name):
+        print(f"🍽 Table booked for {guest_name}")
+    def order_food(self, guest_name, food):
+        print(f" {guest_name} ordered: {food}")
+
+class EventManagementSystem:
+    def organize_event(self, event_name, guests):
+        print(f" Event '{event_name}' organized for {guests} guests")
+    def book_equipment(self, equipment):
+        print(f" Equipment booked: {equipment}")
+
+class CleaningService:
+    def schedule_cleaning(self, room):
+        print(f" Cleaning scheduled for room {room}")
+    def request_cleaning(self, room):
+        print(f" On-demand cleaning for room {room}")
+
+class TaxiService:
+    def order_taxi(self, guest_name):
+        print(f" Taxi ordered for {guest_name}")
+
+# --- Фасад ---
+class HotelFacade:
+    def __init__(self):
+        self.room = RoomBookingSystem()
+        self.restaurant = RestaurantSystem()
+        self.event = EventManagementSystem()
+        self.cleaning = CleaningService()
+        self.taxi = TaxiService()
+
+    def book_room_with_services(self, guest, food, room):
+        print(f"\n=== Booking full service for {guest} ===")
+        self.room.book_room(guest)
+        self.restaurant.order_food(guest, food)
+        self.cleaning.schedule_cleaning(room)
+
+    def organize_event(self, name, guests):
+        print(f"\n=== Organizing Event '{name}' ===")
+        self.event.organize_event(name, guests)
+        self.event.book_equipment("Projector & Sound System")
+        print("Rooms booked for participants.")
+        for i in range(1, 4):
+            self.room.book_room(f"Guest{i}")
+
+    def book_restaurant_with_taxi(self, guest):
+        print(f"\n=== Restaurant + Taxi for {guest} ===")
+        self.restaurant.book_table(guest)
+        self.taxi.order_taxi(guest)
+
+    def cancel_booking(self, guest):
+        print(f"\n=== Cancel Booking for {guest} ===")
+        self.room.cancel_booking(guest)
+
+
+
+# 2. ПАТТЕРН КОМПОНОВЩИК — Корпоративная структура
+
+class OrganizationComponent(ABC):
+    def __init__(self, name):
+        self.name = name
+    @abstractmethod
+    def show_info(self, indent=0): pass
+    @abstractmethod
+    def get_budget(self): pass
+    @abstractmethod
+    def get_employee_count(self): pass
+
+class Employee(OrganizationComponent):
+    def __init__(self, name, position, salary):
+        super().__init__(name)
+        self.position = position
+        self.salary = salary
+
+    def show_info(self, indent=0):
+        print(" " * indent + f"👤 {self.name} — {self.position}, ${self.salary}")
+
+    def get_budget(self):
+        return self.salary
+
+    def get_employee_count(self):
+        return 1
+
+class Contractor(Employee):
+    def get_budget(self):
+        return 0  # не входит в бюджет отдела
+
+class Department(OrganizationComponent):
+    def __init__(self, name):
+        super().__init__(name)
+        self.members = []
+
+    def add(self, component):
+        self.members.append(component)
+
+    def show_info(self, indent=0):
+        print(" " * indent + f" Department: {self.name}")
+        for m in self.members:
+            m.show_info(indent + 2)
+
+    def get_budget(self):
+        return sum(m.get_budget() for m in self.members)
+
+    def get_employee_count(self):
+        return sum(m.get_employee_count() for m in self.members)
+
+    def find_employee(self, name):
+        for m in self.members:
+            if isinstance(m, Employee) and m.name == name:
+                return m
+            if isinstance(m, Department):
+                found = m.find_employee(name)
+                if found:
+                    return found
+        return None
+
+
+if __name__ == "__main__":
+    print("===  DEMO: Hotel Facade ===")
+    hotel = HotelFacade()
+    hotel.book_room_with_services("Aruzhan", "Pasta & Juice", 101)
+    hotel.organize_event("Business Forum", 50)
+    hotel.book_restaurant_with_taxi("Murat")
+    hotel.cancel_booking("Aruzhan")
+
+    print("\n===  DEMO: Corporate Structure (Composite) ===")
+    # Отделы
+    head_office = Department("Head Office")
+    it_dep = Department("IT Department")
+    hr_dep = Department("HR Department")
+
+    # Сотрудники
+    emp1 = Employee("Aruzhan", "Manager", 1500)
+    emp2 = Employee("Dias", "Developer", 2000)
+    emp3 = Employee("Amina", "HR Specialist", 1200)
+    contractor = Contractor("Timur", "Freelancer", 800)
+
+    # Формируем иерархию
+    it_dep.add(emp2)
+    it_dep.add(contractor)
+    hr_dep.add(emp3)
+    head_office.add(emp1)
+    head_office.add(it_dep)
+    head_office.add(hr_dep)
+
+    # Отображение структуры
+    head_office.show_info()
+    print(f"\n Total budget: ${head_office.get_budget()}")
+    print(f"👥 Total employees: {head_office.get_employee_count()}")
+
+    # Поиск сотрудника
+    name = "Dias"
+    found = head_office.find_employee(name)
+    if found:
+        print(f"\n Found employee: {found.name}, {found.position}, salary ${found.salary}")
