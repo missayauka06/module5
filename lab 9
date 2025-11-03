@@ -1,0 +1,141 @@
+
+from abc import ABC, abstractmethod
+
+
+# 1. ПАТТЕРН ФАСАД (Facade)
+
+class AudioSystem:
+    def turn_on(self):
+        print("Audio system is turned on.")
+
+    def set_volume(self, level):
+        print(f"Audio volume is set to {level}.")
+
+    def turn_off(self):
+        print("Audio system is turned off.")
+
+
+class VideoProjector:
+    def turn_on(self):
+        print("Video projector is turned on.")
+
+    def set_resolution(self, resolution):
+        print(f"Video resolution is set to {resolution}.")
+
+    def turn_off(self):
+        print("Video projector is turned off.")
+
+
+class LightingSystem:
+    def turn_on(self):
+        print("Lights are turned on.")
+
+    def set_brightness(self, level):
+        print(f"Lights brightness is set to {level}.")
+
+    def turn_off(self):
+        print("Lights are turned off.")
+
+
+# --- Класс ФАСАД ---
+class HomeTheaterFacade:
+    def __init__(self, audio_system, video_projector, lighting_system):
+        self.audio_system = audio_system
+        self.video_projector = video_projector
+        self.lighting_system = lighting_system
+
+    def start_movie(self):
+        print("\n=== Starting Movie Mode ===")
+        self.lighting_system.turn_on()
+        self.lighting_system.set_brightness(5)
+        self.audio_system.turn_on()
+        self.audio_system.set_volume(8)
+        self.video_projector.turn_on()
+        self.video_projector.set_resolution("HD")
+        print("Movie started.\n")
+
+    def end_movie(self):
+        print("=== Ending Movie Mode ===")
+        self.video_projector.turn_off()
+        self.audio_system.turn_off()
+        self.lighting_system.turn_off()
+        print("Movie ended.\n")
+
+
+# 2. ПАТТЕРН КОМПОНОВЩИК (Composite)
+
+# Абстрактный компонент
+class FileSystemComponent(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    @abstractmethod
+    def display(self, depth):
+        pass
+
+    def add(self, component):
+        raise NotImplementedError("Operation not supported")
+
+    def remove(self, component):
+        raise NotImplementedError("Operation not supported")
+
+    def get_child(self, index):
+        raise NotImplementedError("Operation not supported")
+
+
+# Лист (файл)
+class File(FileSystemComponent):
+    def display(self, depth):
+        print("-" * depth + f" File: {self.name}")
+
+
+# Контейнер (директория)
+class Directory(FileSystemComponent):
+    def __init__(self, name):
+        super().__init__(name)
+        self.children = []
+
+    def add(self, component):
+        self.children.append(component)
+
+    def remove(self, component):
+        self.children.remove(component)
+
+    def get_child(self, index):
+        return self.children[index]
+
+    def display(self, depth):
+        print("-" * depth + f" Directory: {self.name}")
+        for component in self.children:
+            component.display(depth + 2)
+
+
+
+if __name__ == "__main__":
+    print("===== DEMO: ПАТТЕРН ФАСАД =====")
+    # Подсистемы
+    audio = AudioSystem()
+    video = VideoProjector()
+    lights = LightingSystem()
+
+    # Фасад
+    home_theater = HomeTheaterFacade(audio, video, lights)
+    home_theater.start_movie()
+    home_theater.end_movie()
+
+    print("\n===== DEMO: ПАТТЕРН КОМПОНОВЩИК =====")
+    # Создание файлов и директорий
+    root = Directory("Root")
+    file1 = File("File1.txt")
+    file2 = File("File2.txt")
+    sub_dir = Directory("SubDirectory")
+    sub_file1 = File("SubFile1.txt")
+
+    # Формирование структуры
+    root.add(file1)
+    root.add(file2)
+    sub_dir.add(sub_file1)
+    root.add(sub_dir)
+
+    # Отображение структуры
+    root.display(1)
