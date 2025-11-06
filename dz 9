@@ -1,0 +1,96 @@
+
+class TV:
+    def on(self):
+        print(" Телевизор включён.")
+    def off(self):
+        print(" Телевизор выключен.")
+    def set_channel(self, channel):
+        print(f" Канал переключен на {channel}.")
+
+class AudioSystem:
+    def on(self):
+        print(" Аудиосистема включена.")
+    def off(self):
+        print(" Аудиосистема выключена.")
+    def set_volume(self, level):
+        print(f" Громкость установлена на уровень {level}.")
+
+class DVDPlayer:
+    def on(self):
+        print(" DVD-проигрыватель включён.")
+    def play(self, movie):
+        print(f" Воспроизведение фильма: {movie}.")
+    def pause(self):
+        print("⏸ Фильм на паузе.")
+    def stop(self):
+        print(" Воспроизведение остановлено.")
+    def off(self):
+        print(" DVD-проигрыватель выключен.")
+
+class GameConsole:
+    def on(self):
+        print(" Игровая консоль включена.")
+    def play_game(self, game):
+        print(f" Запуск игры: {game}.")
+    def off(self):
+        print(" Игровая консоль выключена.")
+
+
+class HomeTheaterFacade:
+    def __init__(self, tv, audio, dvd, console):
+        self.tv = tv
+        self.audio = audio
+        self.dvd = dvd
+        self.console = console
+
+    def watch_movie(self, movie):
+        print("\n Подготовка к просмотру фильма...")
+        self.tv.on()
+        self.audio.on()
+        self.audio.set_volume(5)
+        self.dvd.on()
+        self.dvd.play(movie)
+
+    def stop_movie(self):
+        print("\n Остановка фильма и выключение системы...")
+        self.dvd.stop()
+        self.dvd.off()
+        self.audio.off()
+        self.tv.off()
+
+    def play_game(self, game):
+        print("\n Подготовка к запуску игры...")
+        self.console.on()
+        self.audio.on()
+        self.audio.set_volume(7)
+        self.console.play_game(game)
+
+    def listen_music(self):
+        print("\n Подготовка к прослушиванию музыки...")
+        self.tv.on()
+        self.audio.on()
+        self.audio.set_volume(4)
+        print(" Музыка воспроизводится через аудиосистему и TV.")
+
+    def shutdown(self):
+        print("\n Выключение всей системы...")
+        self.tv.off()
+        self.audio.off()
+        self.dvd.off()
+        self.console.off()
+
+
+if __name__ == "__main__":
+    tv = TV()
+    audio = AudioSystem()
+    dvd = DVDPlayer()
+    console = GameConsole()
+
+    home_theater = HomeTheaterFacade(tv, audio, dvd, console)
+
+    home_theater.watch_movie("Интерстеллар")
+    home_theater.stop_movie()
+
+    home_theater.play_game("FIFA 25")
+    home_theater.listen_music()
+    home_theater.shutdown()
