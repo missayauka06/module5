@@ -1,0 +1,174 @@
+'''11 lab'''
+
+from datetime import datetime
+from uuid import uuid4
+
+
+# Класс Book
+class Book:
+    def __init__(self, title, author, isbn):
+        self.id = str(uuid4())
+        self.title = title
+        self.author = author
+        self.isbn = isbn
+        self.is_available = True
+
+    def mark_as_loaned(self):
+        self.is_available = False
+
+    def mark_as_available(self):
+        self.is_available = True
+
+    def __repr__(self):
+        return f"Book({self.title}, {self.author}, {self.isbn}, Available={self.is_available})"
+
+
+# Класс Reader
+class Reader:
+    def __init__(self, name, email):
+        self.id = str(uuid4())
+        self.name = name
+        self.email = email
+
+    def borrow_book(self, book, loan_repo):
+        if not book.is_available:
+            raise ValueError("Книга недоступна")
+        loan = Loan(book, self)
+        loan_repo.add_loan(loan)
+        book.mark_as_loaned()
+        return loan
+
+    def return_book(self, loan):
+        loan.complete_loan()
+        loan.book.mark_as_available()
+
+    def __repr__(self):
+        return f"Reader({self.name}, {self.email})"
+
+
+# Класс Librarian
+class Librarian:
+    def __init__(self, name, position):
+        self.id = str(uuid4())
+        self.name = name
+        self.position = position
+
+    def add_book(self, library, book):
+        library.add_book(book)
+
+    def remove_book(self, library, book_id):
+        library.remove_book(book_id)
+
+    def register_reader(self, reader_repo, reader):
+        reader_repo.add_reader(reader)
+
+    def __repr__(self):
+        return f"Librarian({self.name}, {self.position})"
+
+
+# Класс Loan
+class Loan:
+    def __init__(self, book, reader):
+        self.id = str(uuid4())
+        self.book = book
+        self.reader = reader
+        self.loan_date = datetime.now()
+        self.return_date = None
+        self.is_active = True
+
+    def issue_loan(self):
+        self.is_active = True
+        self.loan_date = datetime.now()
+
+    def complete_loan(self):
+        self.is_active = False
+        self.return_date = datetime.now()
+
+    def __repr__(self):
+        return f"Loan(Book={self.book.title}, Reader={self.reader.name}, Active={self.is_active})"
+
+
+# Репозиторий книг
+class LibraryRepository:
+    def __init__(self):
+        self.books = {}
+
+    def add_book(self, book):
+        self.books[book.id] = book
+
+    def remove_book(self, book_id):
+        if book_id in self.books:
+            del self.books[book_id]
+
+    def find_by_title(self, title):
+        return [b for b in self.books.values() if title.lower() in b.title.lower()]
+
+    def find_by_author(self, author):
+        return [b for b in self.books.values() if author.lower() in b.author.lower()]
+
+    def list_available(self):
+        return [b for b in self.books.values() if b.is_available]
+
+    def list_loaned(self):
+        return [b for b in self.books.values() if not b.is_available]
+
+
+# Репозиторий читателей
+class ReaderRepository:
+    def __init__(self):
+        self.readers = {}
+
+    def add_reader(self, reader):
+        self.readers[reader.id] = reader
+
+    def remove_reader(self, reader_id):
+        if reader_id in self.readers:
+            del self.readers[reader_id]
+
+
+# Репозиторий выдачи книг
+class LoanRepository:
+    def __init__(self):
+        self.loans = {}
+
+    def add_loan(self, loan):
+        self.loans[loan.id] = loan
+
+    def get_active_loans(self):
+        return [l for l in self.loans.values() if l.is_active]
+
+    def get_completed_loans(self):
+        return [l for l in self.loans.values() if not l.is_active]
+
+
+# Пример использования
+if __name__ == "__main__":
+    library = LibraryRepository()
+    loan_repo = LoanRepository()
+    reader_repo = ReaderRepository()
+
+    librarian = Librarian("Айгерим", "Старший библиотекарь")
+
+    # Добавляем книги
+    book1 = Book("Мастер и Маргарита", "М.А. Булгаков", "ISBN-123")
+    book2 = Book("1984", "Джордж Оруэлл", "ISBN-456")
+    librarian.add_book(library, book1)
+    librarian.add_book(library, book2)
+
+    # Регистрируем читателя
+    reader = Reader("Асылжан", "asyl@example.com")
+    librarian.register_reader(reader_repo, reader)
+
+    # Выдача книги
+    loan = reader.borrow_book(book1, loan_repo)
+    print("Выдано:", loan)
+
+    # Список доступных книг
+    print("Доступные книги:", library.list_available())
+
+    # Возврат книги
+    reader.return_book(loan)
+    print("Возврат:", loan)
+
+    # Доступные книги после возврата
+    print("Теперь доступные книги:", library.list_available())
