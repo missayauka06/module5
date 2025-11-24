@@ -1,0 +1,268 @@
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import List, Optional
+
+
+
+@dataclass
+class Room:
+    id: int
+    number: str
+    type: str
+    price: float
+    is_available: bool = True
+
+    def __repr__(self):
+        return f"Room(id={self.id}, number='{self.number}', type='{self.type}', price={self.price}, available={self.is_available})"
+
+
+@dataclass
+class Booking:
+    id: int
+    room_id: int
+    guest_id: int
+    start: datetime
+    end: datetime
+    is_active: bool = True
+
+    def __repr__(self):
+        return f"Booking(id={self.id}, room={self.room_id}, guest={self.guest_id}, {self.start.date()} -> {self.end.date()}, active={self.is_active})"
+
+
+@dataclass
+class Guest:
+    id: int
+    name: str
+
+
+@dataclass
+class Admin:
+    id: int
+    name: str
+
+
+class Hotel:
+    def __init__(self):
+        self.rooms: List[Room] = []
+        self.bookings: List[Booking] = []
+        self._next_room_id = 1
+        self._next_booking_id = 1
+
+    # Add room
+    def add_room(self, number: str, type_: str, price: float):
+        room = Room(self._next_room_id, number, type_, price)
+        self._next_room_id += 1
+        self.rooms.append(room)
+        return room
+
+    # Remove room
+    def remove_room(self, room_id: int):
+        room = next((r for r in self.rooms if r.id == room_id), None)
+        if not room:
+            return False
+        # cannot delete if active bookings exist
+        if any(b.room_id == room_id and b.is_active for b in self.bookings):
+            return False
+        self.rooms.remove(room)
+        return True
+
+    # Get available rooms
+    def get_available_rooms(self, start: datetime, end: datetime):
+        occupied = {
+            b.room_id
+            for b in self.bookings
+            if b.is_active and not (end <= b.start or start >= b.end)
+        }
+        return [r for r in self.rooms if r.id not in occupied and r.is_available]
+
+    # Make booking
+    def make_booking(self, guest_id: int, room_id: int, start: datetime, end: datetime):
+        if start >= end:
+            return None
+
+        room = next((r for r in self.rooms if r.id == room_id), None)
+        if not room:
+            return None
+
+        conflict = any(
+            b.room_id == room_id and b.is_active and
+            not (end <= b.start or start >= b.end)
+            for b in self.bookings
+        )
+        if conflict:
+            return None
+
+        booking = Booking(
+            id=self._next_booking_id,
+            room_id=room_id,
+            guest_id=guest_id,
+            start=start,
+            end=end
+        )
+        self._next_booking_id += 1
+        self.bookings.append(booking)
+        return booking
+
+    # Cancel booking
+    def cancel_booking(self, booking_id: int, guest_id: int):
+        booking = next(
+            (b for b in self.bookings
+             if b.id == booking_id and b.guest_id == guest_id and b.is_active),
+            None
+        )
+        if not booking:
+            return False
+        booking.is_active = False
+        return True
+
+
+
+
+@dataclass
+class Book:
+    id: int
+    title: str
+    author: str
+    isbn: str
+    is_available: bool = True
+
+    def __repr__(self):
+        return f"Book(id={self.id}, title='{self.title}', author='{self.author}', isbn='{self.isbn}', available={self.is_available})"
+
+
+@dataclass
+class Reader:
+    id: int
+    name: str
+    email: str
+
+
+@dataclass
+class Librarian:
+    id: int
+    name: str
+
+
+@dataclass
+class Loan:
+    id: int
+    book_id: int
+    reader_id: int
+    loan_date: datetime
+    return_date: Optional[datetime] = None
+
+    def is_active(self):
+        return self.return_date is None
+
+    def __repr__(self):
+        return f"Loan(id={self.id}, book={self.book_id}, reader={self.reader_id}, loan={self.loan_date.date()}, return={self.return_date})"
+
+
+class Library:
+    def __init__(self):
+        self.books: List[Book] = []
+        self.readers: List[Reader] = []
+        self.loans: List[Loan] = []
+        self._next_book_id = 1
+        self._next_loan_id = 1
+
+    # Add book
+    def add_book(self, title: str, author: str, isbn: str):
+        book = Book(self._next_book_id, title, author, isbn)
+        self._next_book_id += 1
+        self.books.append(book)
+        return book
+
+    # Remove book
+    def remove_book(self, book_id: int):
+        book = next((b for b in self.books if b.id == book_id), None)
+        if not book:
+            return False
+        if not book.is_available:
+            return False
+        self.books.remove(book)
+        return True
+
+    # Add reader
+    def add_reader(self, id_: int, name: str, email: str):
+        reader = Reader(id_, name, email)
+        self.readers.append(reader)
+        return reader
+
+    # Issue loan
+    def issue_loan(self, book_id: int, reader_id: int):
+        book = next((b for b in self.books if b.id == book_id and b.is_available), None)
+        reader = next((r for r in self.readers if r.id == reader_id), None)
+        if not book or not reader:
+            return None
+
+        book.is_available = False
+        loan = Loan(self._next_loan_id, book_id, reader_id, datetime.now())
+        self._next_loan_id += 1
+        self.loans.append(loan)
+        return loan
+
+    # Return book
+    def return_book(self, loan_id: int):
+        loan = next((l for l in self.loans if l.id == loan_id and l.return_date is None), None)
+        if not loan:
+            return False
+
+        book = next((b for b in self.books if b.id == loan.book_id), None)
+        if not book:
+            return False
+
+        loan.return_date = datetime.now()
+        book.is_available = True
+        return True
+
+    # Search
+    def search_books(self, query: str):
+        query = query.lower()
+        return [
+            b for b in self.books
+            if query in b.title.lower() or query in b.author.lower()
+        ]
+
+
+
+
+if __name__ == "__main__":
+    print("\n===== HOTEL SYSTEM DEMO =====")
+    hotel = Hotel()
+    guest = Guest(1, "Bob")
+
+    r1 = hotel.add_room("101", "Single", 50)
+    r2 = hotel.add_room("102", "Double", 80)
+
+    start = datetime.now() + timedelta(days=1)
+    end = start + timedelta(days=2)
+
+    print("Available:", hotel.get_available_rooms(start, end))
+
+    booking = hotel.make_booking(guest.id, r1.id, start, end)
+    print("Booking created:", booking)
+
+    print("Available after booking:", hotel.get_available_rooms(start, end))
+
+    hotel.cancel_booking(booking.id, guest.id)
+    print("Booking after cancel:", booking)
+
+
+    print("\n===== LIBRARY SYSTEM DEMO =====")
+    library = Library()
+
+    b1 = library.add_book("War and Peace", "Leo Tolstoy", "9781111")
+    b2 = library.add_book("1984", "George Orwell", "9782222")
+
+    reader = library.add_reader(1, "Ivan", "ivan@example.com")
+
+    loan = library.issue_loan(b1.id, reader.id)
+    print("Loan:", loan)
+
+    print("Books:", library.books)
+
+    returned = library.return_book(loan.id)
+    print("Returned:", returned)
+
+    print("Books now:", library.books)
