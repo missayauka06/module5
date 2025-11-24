@@ -1,174 +1,816 @@
 '''11 lab'''
+#1 задания
 
-from datetime import datetime
-from uuid import uuid4
+# from datetime import datetime
+# from uuid import uuid4
+#
+#
+# # Класс Book
+# class Book:
+#     def __init__(self, title, author, isbn):
+#         self.id = str(uuid4())
+#         self.title = title
+#         self.author = author
+#         self.isbn = isbn
+#         self.is_available = True
+#
+#     def mark_as_loaned(self):
+#         self.is_available = False
+#
+#     def mark_as_available(self):
+#         self.is_available = True
+#
+#     def __repr__(self):
+#         return f"Book({self.title}, {self.author}, {self.isbn}, Available={self.is_available})"
+#
+#
+# # Класс Reader
+# class Reader:
+#     def __init__(self, name, email):
+#         self.id = str(uuid4())
+#         self.name = name
+#         self.email = email
+#
+#     def borrow_book(self, book, loan_repo):
+#         if not book.is_available:
+#             raise ValueError("Книга недоступна")
+#         loan = Loan(book, self)
+#         loan_repo.add_loan(loan)
+#         book.mark_as_loaned()
+#         return loan
+#
+#     def return_book(self, loan):
+#         loan.complete_loan()
+#         loan.book.mark_as_available()
+#
+#     def __repr__(self):
+#         return f"Reader({self.name}, {self.email})"
+#
+#
+# # Класс Librarian
+# class Librarian:
+#     def __init__(self, name, position):
+#         self.id = str(uuid4())
+#         self.name = name
+#         self.position = position
+#
+#     def add_book(self, library, book):
+#         library.add_book(book)
+#
+#     def remove_book(self, library, book_id):
+#         library.remove_book(book_id)
+#
+#     def register_reader(self, reader_repo, reader):
+#         reader_repo.add_reader(reader)
+#
+#     def __repr__(self):
+#         return f"Librarian({self.name}, {self.position})"
+#
+#
+# # Класс Loan
+# class Loan:
+#     def __init__(self, book, reader):
+#         self.id = str(uuid4())
+#         self.book = book
+#         self.reader = reader
+#         self.loan_date = datetime.now()
+#         self.return_date = None
+#         self.is_active = True
+#
+#     def issue_loan(self):
+#         self.is_active = True
+#         self.loan_date = datetime.now()
+#
+#     def complete_loan(self):
+#         self.is_active = False
+#         self.return_date = datetime.now()
+#
+#     def __repr__(self):
+#         return f"Loan(Book={self.book.title}, Reader={self.reader.name}, Active={self.is_active})"
+#
+#
+# # Репозиторий книг
+# class LibraryRepository:
+#     def __init__(self):
+#         self.books = {}
+#
+#     def add_book(self, book):
+#         self.books[book.id] = book
+#
+#     def remove_book(self, book_id):
+#         if book_id in self.books:
+#             del self.books[book_id]
+#
+#     def find_by_title(self, title):
+#         return [b for b in self.books.values() if title.lower() in b.title.lower()]
+#
+#     def find_by_author(self, author):
+#         return [b for b in self.books.values() if author.lower() in b.author.lower()]
+#
+#     def list_available(self):
+#         return [b for b in self.books.values() if b.is_available]
+#
+#     def list_loaned(self):
+#         return [b for b in self.books.values() if not b.is_available]
+#
+#
+# # Репозиторий читателей
+# class ReaderRepository:
+#     def __init__(self):
+#         self.readers = {}
+#
+#     def add_reader(self, reader):
+#         self.readers[reader.id] = reader
+#
+#     def remove_reader(self, reader_id):
+#         if reader_id in self.readers:
+#             del self.readers[reader_id]
+#
+#
+# # Репозиторий выдачи книг
+# class LoanRepository:
+#     def __init__(self):
+#         self.loans = {}
+#
+#     def add_loan(self, loan):
+#         self.loans[loan.id] = loan
+#
+#     def get_active_loans(self):
+#         return [l for l in self.loans.values() if l.is_active]
+#
+#     def get_completed_loans(self):
+#         return [l for l in self.loans.values() if not l.is_active]
+#
+#
+# # Пример использования
+# if __name__ == "__main__":
+#     library = LibraryRepository()
+#     loan_repo = LoanRepository()
+#     reader_repo = ReaderRepository()
+#
+#     librarian = Librarian("Айгерим", "Старший библиотекарь")
+#
+#     # Добавляем книги
+#     book1 = Book("Мастер и Маргарита", "М.А. Булгаков", "ISBN-123")
+#     book2 = Book("1984", "Джордж Оруэлл", "ISBN-456")
+#     librarian.add_book(library, book1)
+#     librarian.add_book(library, book2)
+#
+#     # Регистрируем читателя
+#     reader = Reader("Асылжан", "asyl@example.com")
+#     librarian.register_reader(reader_repo, reader)
+#
+#     # Выдача книги
+#     loan = reader.borrow_book(book1, loan_repo)
+#     print("Выдано:", loan)
+#
+#     # Список доступных книг
+#     print("Доступные книги:", library.list_available())
+#
+#     # Возврат книги
+#     reader.return_book(loan)
+#     print("Возврат:", loan)
+#
+#     # Доступные книги после возврата
+#     print("Теперь доступные книги:", library.list_available())
 
 
-# Класс Book
-class Book:
-    def __init__(self, title, author, isbn):
-        self.id = str(uuid4())
-        self.title = title
-        self.author = author
-        self.isbn = isbn
-        self.is_available = True
-
-    def mark_as_loaned(self):
-        self.is_available = False
-
-    def mark_as_available(self):
-        self.is_available = True
-
-    def __repr__(self):
-        return f"Book({self.title}, {self.author}, {self.isbn}, Available={self.is_available})"
 
 
-# Класс Reader
-class Reader:
-    def __init__(self, name, email):
-        self.id = str(uuid4())
-        self.name = name
-        self.email = email
-
-    def borrow_book(self, book, loan_repo):
-        if not book.is_available:
-            raise ValueError("Книга недоступна")
-        loan = Loan(book, self)
-        loan_repo.add_loan(loan)
-        book.mark_as_loaned()
-        return loan
-
-    def return_book(self, loan):
-        loan.complete_loan()
-        loan.book.mark_as_available()
-
-    def __repr__(self):
-        return f"Reader({self.name}, {self.email})"
 
 
-# Класс Librarian
-class Librarian:
-    def __init__(self, name, position):
-        self.id = str(uuid4())
-        self.name = name
-        self.position = position
-
-    def add_book(self, library, book):
-        library.add_book(book)
-
-    def remove_book(self, library, book_id):
-        library.remove_book(book_id)
-
-    def register_reader(self, reader_repo, reader):
-        reader_repo.add_reader(reader)
-
-    def __repr__(self):
-        return f"Librarian({self.name}, {self.position})"
 
 
-# Класс Loan
-class Loan:
-    def __init__(self, book, reader):
-        self.id = str(uuid4())
-        self.book = book
-        self.reader = reader
-        self.loan_date = datetime.now()
-        self.return_date = None
-        self.is_active = True
-
-    def issue_loan(self):
-        self.is_active = True
-        self.loan_date = datetime.now()
-
-    def complete_loan(self):
-        self.is_active = False
-        self.return_date = datetime.now()
-
-    def __repr__(self):
-        return f"Loan(Book={self.book.title}, Reader={self.reader.name}, Active={self.is_active})"
 
 
-# Репозиторий книг
-class LibraryRepository:
-    def __init__(self):
-        self.books = {}
-
-    def add_book(self, book):
-        self.books[book.id] = book
-
-    def remove_book(self, book_id):
-        if book_id in self.books:
-            del self.books[book_id]
-
-    def find_by_title(self, title):
-        return [b for b in self.books.values() if title.lower() in b.title.lower()]
-
-    def find_by_author(self, author):
-        return [b for b in self.books.values() if author.lower() in b.author.lower()]
-
-    def list_available(self):
-        return [b for b in self.books.values() if b.is_available]
-
-    def list_loaned(self):
-        return [b for b in self.books.values() if not b.is_available]
 
 
-# Репозиторий читателей
-class ReaderRepository:
-    def __init__(self):
-        self.readers = {}
-
-    def add_reader(self, reader):
-        self.readers[reader.id] = reader
-
-    def remove_reader(self, reader_id):
-        if reader_id in self.readers:
-            del self.readers[reader_id]
 
 
-# Репозиторий выдачи книг
-class LoanRepository:
-    def __init__(self):
-        self.loans = {}
-
-    def add_loan(self, loan):
-        self.loans[loan.id] = loan
-
-    def get_active_loans(self):
-        return [l for l in self.loans.values() if l.is_active]
-
-    def get_completed_loans(self):
-        return [l for l in self.loans.values() if not l.is_active]
 
 
-# Пример использования
-if __name__ == "__main__":
-    library = LibraryRepository()
-    loan_repo = LoanRepository()
-    reader_repo = ReaderRepository()
 
-    librarian = Librarian("Айгерим", "Старший библиотекарь")
 
-    # Добавляем книги
-    book1 = Book("Мастер и Маргарита", "М.А. Булгаков", "ISBN-123")
-    book2 = Book("1984", "Джордж Оруэлл", "ISBN-456")
-    librarian.add_book(library, book1)
-    librarian.add_book(library, book2)
 
-    # Регистрируем читателя
-    reader = Reader("Асылжан", "asyl@example.com")
-    librarian.register_reader(reader_repo, reader)
 
-    # Выдача книги
-    loan = reader.borrow_book(book1, loan_repo)
-    print("Выдано:", loan)
 
-    # Список доступных книг
-    print("Доступные книги:", library.list_available())
 
-    # Возврат книги
-    reader.return_book(loan)
-    print("Возврат:", loan)
 
-    # Доступные книги после возврата
-    print("Теперь доступные книги:", library.list_available())
+# 2 задания
+#
+#
+# from __future__ import annotations
+#
+# import threading
+# from abc import ABC
+# from dataclasses import dataclass, field
+# from datetime import date, timedelta
+# from typing import List, Optional, Dict
+# from uuid import uuid4
+#
+#
+# # Constants / Enums (simple)
+# class AppointmentStatus:
+#     SCHEDULED = 'scheduled'
+#     CANCELLED = 'cancelled'
+#     COMPLETED = 'completed'
+#
+#
+# # Abstract User
+# @dataclass
+# class User(ABC):
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     name: str = ''
+#     email: str = ''
+#
+#     def update_data(self, **kwargs):
+#         for k, v in kwargs.items():
+#             if hasattr(self, k):
+#                 setattr(self, k, v)
+#
+#
+# # Patients and Medical Staff
+# @dataclass
+# class Patient(User):
+#     birth_date: Optional[date] = None
+#     address: str = ''
+#     medical_history: List[str] = field(default_factory=list)
+#
+#     def register(self):
+#         # placeholder: registration logic
+#         print(f"[Patient.register] {self.name} registered")
+#
+#     def view_history(self) -> List[str]:
+#         return list(self.medical_history)
+#
+#
+# @dataclass
+# class MedicalStaff(User):
+#     role: str = ''  # 'doctor', 'nurse', 'admin'
+#     department: Optional[str] = None
+#
+#
+# @dataclass
+# class Doctor(MedicalStaff):
+#     specialization: str = ''
+#     # schedule: map date string -> list of time slots (e.g. '2025-12-01' -> ['09:00','10:00'])
+#     schedule: Dict[str, List[str]] = field(default_factory=dict)
+#     office: Optional[str] = None
+#
+#     def assign_schedule(self, date_str: str, time_slots: List[str]):
+#         self.schedule[date_str] = time_slots
+#
+#     def update_schedule(self, date_str: str, time_slots: List[str]):
+#         self.schedule[date_str] = time_slots
+#
+#     def assign_treatment(self, medical_record: MedicalRecord, text: str):
+#         medical_record.add_entry(f"Treatment assigned by {self.name}: {text}")
+#
+#     def issue_prescription(self, prescription_repo: "PrescriptionRepository", prescription: "Prescription"):
+#         prescription_repo.add(prescription)
+#         print(f"[Doctor.issue_prescription] Prescription {prescription.id} created for {prescription.patient.name}")
+#
+#
+# @dataclass
+# class Nurse(MedicalStaff):
+#     def assist(self):
+#         pass
+#
+#
+# @dataclass
+# class Administrator(MedicalStaff):
+#     def manage_system(self):
+#         pass
+#
+#
+# # Appointment
+# @dataclass
+# class Appointment:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     date: date = field(default_factory=date.today)
+#     time: str = ''  # e.g. '09:30'
+#     patient: Optional[Patient] = None
+#     doctor: Optional[Doctor] = None
+#     status: str = AppointmentStatus.SCHEDULED
+#     from datetime import datetime, timezone
+#     datetime.now(timezone.utc)
+#
+#     def create(self):
+#         self.status = AppointmentStatus.SCHEDULED
+#
+#     def cancel(self):
+#         self.status = AppointmentStatus.CANCELLED
+#
+#     def complete(self):
+#         self.status = AppointmentStatus.COMPLETED
+#
+#
+# # Medical Record
+# @dataclass
+# class MedicalRecord:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     patient: Optional[Patient] = None
+#     entries: List[str] = field(default_factory=list)
+#
+#     def add_entry(self, entry: str):
+#         from datetime import datetime, timezone
+#         datetime.now(timezone.utc)
+#
+#     def update_entry(self, index: int, text: str):
+#         if 0 <= index < len(self.entries):
+#             from datetime import datetime, timezone
+#             datetime.now(timezone.utc)
+#
+#     def delete_entry(self, index: int):
+#         if 0 <= index < len(self.entries):
+#             self.entries.pop(index)
+#
+#
+# # Medicine and Prescription
+# @dataclass
+# class Medicine:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     name: str = ''
+#     quantity: int = 0
+#     expiry_date: Optional[date] = None
+#
+#     def order(self, qty: int):
+#         self.quantity += qty
+#
+#     def issue(self, qty: int):
+#         if qty > self.quantity:
+#             raise ValueError('Not enough medicine in stock')
+#         self.quantity -= qty
+#
+#     def write_off(self, qty: int):
+#         self.issue(qty)
+#
+#
+# @dataclass
+# class Prescription:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     doctor: Optional[Doctor] = None
+#     patient: Optional[Patient] = None
+#     medicine: Optional[Medicine] = None
+#     dosage: str = ''  # e.g. "100mg"
+#     duration_days: int = 0  # duration in days
+#     valid_until: Optional[date] = None
+#     from datetime import datetime, timezone
+#     datetime.now(timezone.utc)
+#
+#     def create(self):
+#         from datetime import datetime, timezone
+#         datetime.now(timezone.utc)
+#
+#     def annul(self):
+#         from datetime import datetime, timezone
+#         datetime.now(timezone.utc)
+#
+#
+# # Pharmacy Singleton (inventory management)
+# class PharmacySingleton:
+#     _instance = None
+#     _lock = threading.Lock()
+#
+#     def __init__(self):
+#         if PharmacySingleton._instance is not None:
+#             raise RuntimeError('Use PharmacySingleton.get_instance()')
+#         self.inventory: Dict[str, Medicine] = {}
+#
+#     @classmethod
+#     def get_instance(cls) -> 'PharmacySingleton':
+#         with cls._lock:
+#             if cls._instance is None:
+#                 cls._instance = PharmacySingleton()
+#             return cls._instance
+#
+#     def add_medicine(self, medicine: Medicine):
+#         # merge by id (real system would match by name/SKU)
+#         if medicine.id in self.inventory:
+#             self.inventory[medicine.id].quantity += medicine.quantity
+#         else:
+#             self.inventory[medicine.id] = medicine
+#
+#     def reserve_medicine(self, medicine_id: str, qty: int) -> bool:
+#         med = self.inventory.get(medicine_id)
+#         if not med or med.quantity < qty:
+#             return False
+#         med.quantity -= qty
+#         return True
+#
+#     def get_medicine(self, medicine_id: str) -> Optional[Medicine]:
+#         return self.inventory.get(medicine_id)
+#
+#
+# # Repositories (in-memory simplified)
+# class PatientRepository:
+#     def __init__(self):
+#         self._store: Dict[str, Patient] = {}
+#
+#     def add(self, p: Patient):
+#         self._store[p.id] = p
+#
+#     def find(self, patient_id: str) -> Optional[Patient]:
+#         return self._store.get(patient_id)
+#
+#     def list_all(self) -> List[Patient]:
+#         return list(self._store.values())
+#
+#
+# class DoctorRepository:
+#     def __init__(self):
+#         self._store: Dict[str, Doctor] = {}
+#
+#     def add(self, d: Doctor):
+#         self._store[d.id] = d
+#
+#     def find(self, doctor_id: str) -> Optional[Doctor]:
+#         return self._store.get(doctor_id)
+#
+#
+# class AppointmentRepository:
+#     def __init__(self):
+#         self._store: Dict[str, Appointment] = {}
+#
+#     def add(self, a: Appointment):
+#         self._store[a.id] = a
+#
+#     def find_by_patient(self, patient_id: str) -> List[Appointment]:
+#         return [a for a in self._store.values() if a.patient and a.patient.id == patient_id]
+#
+#     def list_by_doctor_and_date(self, doctor_id: str, date_obj: date) -> List[Appointment]:
+#         return [a for a in self._store.values() if a.doctor and a.doctor.id == doctor_id and a.date == date_obj]
+#
+#
+# class MedicalRecordRepository:
+#     def __init__(self):
+#         self._store: Dict[str, MedicalRecord] = {}
+#
+#     def add(self, r: MedicalRecord):
+#         self._store[r.id] = r
+#
+#     def find_by_patient(self, patient_id: str) -> Optional[MedicalRecord]:
+#         for r in self._store.values():
+#             if r.patient and r.patient.id == patient_id:
+#                 return r
+#         return None
+#
+#
+# class PrescriptionRepository:
+#     def __init__(self):
+#         self._store: Dict[str, Prescription] = {}
+#
+#     def add(self, p: Prescription):
+#         self._store[p.id] = p
+#
+#     def find_by_patient(self, patient_id: str) -> List[Prescription]:
+#         return [p for p in self._store.values() if p.patient and p.patient.id == patient_id]
+#
+#
+# # Notification service (stub)
+# class NotificationService:
+#     def send_reminder(self, patient: Patient, appointment: Appointment):
+#         print(
+#             f"[Notification] Reminder sent to {patient.name} for appointment {appointment.id} on {appointment.date} at {appointment.time}")
+#
+#
+# # Helper: scheduling check (simple)
+# def is_doctor_available(doctor: Doctor, date_obj: date, time_str: str) -> bool:
+#     slots = doctor.schedule.get(date_obj.isoformat(), [])
+#     return time_str in slots
+#
+#
+# # Example usage
+# if __name__ == '__main__':
+#     # Setup
+#     patient_repo = PatientRepository()
+#     doctor_repo = DoctorRepository()
+#     appointment_repo = AppointmentRepository()
+#     presc_repo = PrescriptionRepository()
+#     pharmacy = PharmacySingleton.get_instance()
+#     notify = NotificationService()
+#
+#     # Create doctor and patient
+#     doc = Doctor(name='Dr. Alice', email='alice@clinic', specialization='Cardiology')
+#     doc.assign_schedule((date.today() + timedelta(days=1)).isoformat(), ['09:00', '10:00', '11:00'])
+#     doctor_repo.add(doc)
+#
+#     pat = Patient(name='Bob', email='bob@example.com', birth_date=date(1980, 1, 1))
+#     patient_repo.add(pat)
+#
+#     # Schedule an appointment
+#     appt_date = date.today() + timedelta(days=1)
+#     appt = Appointment(date=appt_date, time='10:00', patient=pat, doctor=doc)
+#     if is_doctor_available(doc, appt_date, '10:00'):
+#         appointment_repo.add(appt)
+#         notify.send_reminder(pat, appt)
+#     else:
+#         print("Doctor not available at requested time.")
+#
+#     # Pharmacy: add medicine
+#     med = Medicine(name='Aspirin', quantity=100, expiry_date=date(2026, 1, 1))
+#     pharmacy.add_medicine(med)
+#
+#     # Doctor issues prescription
+#     presc = Prescription(doctor=doc, patient=pat, medicine=med, dosage='100mg', duration_days=10,
+#                          valid_until=date.today() + timedelta(days=30))
+#     presc_repo.add(presc)
+#     # Reserve medicine automatically when dispensing (example)
+#     ok = pharmacy.reserve_medicine(med.id, 10)
+#     print("Medicine reserved:", ok)
+#     print("Remaining quantity:", pharmacy.get_medicine(med.id).quantity if pharmacy.get_medicine(med.id) else None)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 3 задания
+
+
+#
+# from __future__ import annotations
+# from dataclasses import dataclass, field
+# from typing import List, Dict, Optional
+# from uuid import uuid4
+# from datetime import datetime, date, timezone
+# from abc import ABC
+#
+#
+# # ENUMS
+# class AppointmentStatus:
+#     SCHEDULED = "scheduled"
+#     CANCELLED = "cancelled"
+#     COMPLETED = "completed"
+#
+#
+# # ABSTRACT USER
+# @dataclass
+# class User(ABC):
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     name: str = ""
+#     email: str = ""
+#
+#     def update_data(self, **kwargs):
+#         for k, v in kwargs.items():
+#             if hasattr(self, k):
+#                 setattr(self, k, v)
+#
+#
+# # PATIENT
+# @dataclass
+# class Patient(User):
+#     birth_date: Optional[date] = None
+#     address: str = ""
+#     medical_history: List[str] = field(default_factory=list)
+#
+#     def register(self):
+#         print(f"[Patient] {self.name} registered successfully.")
+#
+#     def view_history(self):
+#         return self.medical_history
+#
+#
+# # MEDICAL STAFF
+# @dataclass
+# class MedicalStaff(User):
+#     specialization: str = ""
+#     office: str = ""
+#
+#
+# @dataclass
+# class Doctor(MedicalStaff):
+#     schedule: Dict[str, List[str]] = field(default_factory=dict)
+#
+#     def update_schedule(self, day: str, times: List[str]):
+#         self.schedule[day] = times
+#
+#     def assign_treatment(self, record: MedicalRecord, text: str):
+#         record.add_entry(f"Doctor {self.name}: {text}")
+#
+#     def issue_prescription(self, prescription_repo, prescription):
+#         prescription_repo.add(prescription)
+#         print(f"[Doctor] Prescription issued to {prescription.patient.name}")
+#
+#
+# @dataclass
+# class Nurse(MedicalStaff):
+#     def assist(self):
+#         print(f"Nurse {self.name} is assisting.")
+#
+#
+# @dataclass
+# class Administrator(MedicalStaff):
+#     def manage_system(self):
+#         print(f"Administrator {self.name} manages the system.")
+#
+#
+# # MEDICAL RECORD
+# @dataclass
+# class MedicalRecord:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     patient: Optional[Patient] = None
+#     entries: List[str] = field(default_factory=list)
+#
+#     def add_entry(self, text: str):
+#         timestamp = datetime.now(timezone.utc).isoformat()
+#         self.entries.append(f"{timestamp} — {text}")
+#
+#     def update_entry(self, index: int, text: str):
+#         timestamp = datetime.now(timezone.utc).isoformat()
+#         self.entries[index] = f"{timestamp} — {text}"
+#
+#     def delete_entry(self, index: int):
+#         self.entries.pop(index)
+#
+#
+# # APPOINTMENT
+# @dataclass
+# class Appointment:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     date: date = field(default_factory=date.today)
+#     time: str = ""
+#     patient: Optional[Patient] = None
+#     doctor: Optional[Doctor] = None
+#     status: str = AppointmentStatus.SCHEDULED
+#
+#     def create(self):
+#         self.status = AppointmentStatus.SCHEDULED
+#
+#     def cancel(self):
+#         self.status = AppointmentStatus.CANCELLED
+#
+#     def complete(self):
+#         self.status = AppointmentStatus.COMPLETED
+#
+#
+# # MEDICINE & PRESCRIPTION
+# @dataclass
+# class Medicine:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     name: str = ""
+#     quantity: int = 0
+#     expiry_date: Optional[date] = None
+#
+#     def order(self, qty: int):
+#         self.quantity += qty
+#
+#     def dispense(self, qty: int):
+#         if qty > self.quantity:
+#             raise ValueError("Not enough stock!")
+#         self.quantity -= qty
+#
+#     def write_off(self, qty: int):
+#         self.quantity = max(0, self.quantity - qty)
+#
+#
+# @dataclass
+# class Prescription:
+#     id: str = field(default_factory=lambda: str(uuid4()))
+#     doctor: Optional[Doctor] = None
+#     patient: Optional[Patient] = None
+#     medicine: Optional[Medicine] = None
+#     dosage: str = ""
+#     duration_days: int = 0
+#     valid_until: Optional[date] = None
+#
+#     def create(self):
+#         print("[Prescription] Created.")
+#
+#     def update(self, dosage: str, days: int):
+#         self.dosage = dosage
+#         self.duration_days = days
+#
+#     def annul(self):
+#         self.valid_until = date.today()
+#
+#
+# # PHARMACY SINGLETON
+# class Pharmacy:
+#     _instance = None
+#
+#     def __init__(self):
+#         if Pharmacy._instance is not None:
+#             raise RuntimeError("Use Pharmacy.get_instance()")
+#         self.inventory: Dict[str, Medicine] = {}
+#
+#     @classmethod
+#     def get_instance(cls):
+#         if cls._instance is None:
+#             cls._instance = Pharmacy()
+#         return cls._instance
+#
+#     def add_medicine(self, medicine: Medicine):
+#         self.inventory[medicine.id] = medicine
+#
+#     def reserve(self, medicine_id: str, qty: int) -> bool:
+#         med = self.inventory.get(medicine_id)
+#         if not med or med.quantity < qty:
+#             return False
+#         med.quantity -= qty
+#         return True
+#
+#
+# # REPOSITORIES
+# class AppointmentRepository:
+#     def __init__(self):
+#         self.appointments = {}
+#
+#     def add(self, a: Appointment):
+#         self.appointments[a.id] = a
+#
+#     def find_by_patient(self, patient_id: str):
+#         return [
+#             a for a in self.appointments.values()
+#             if a.patient and a.patient.id == patient_id
+#         ]
+#
+#
+# class PrescriptionRepository:
+#     def __init__(self):
+#         self.store = {}
+#
+#     def add(self, p: Prescription):
+#         self.store[p.id] = p
+#
+#
+# # NOTIFICATION SERVICE
+# class NotificationService:
+#     def send_reminder(self, patient: Patient, appointment: Appointment):
+#         print(f"[Notification] Reminder sent to {patient.name} "
+#               f"about appointment on {appointment.date} at {appointment.time}")
+#
+#
+# # ----------------------------------------------------
+# # EXAMPLE USAGE
+# # ----------------------------------------------------
+# if __name__ == "__main__":
+#     pharmacy = Pharmacy.get_instance()
+#     pres_repo = PrescriptionRepository()
+#     notif = NotificationService()
+#
+#     doctor = Doctor(name="Dr. Ivan", specialization="Cardiology")
+#     doctor.update_schedule("2025-12-01", ["10:00", "11:00"])
+#
+#     patient = Patient(name="Aigerim", email="ai@example.com", address="Astana")
+#     patient.register()
+#
+#     appointment = Appointment(
+#         date=date(2025, 12, 1),
+#         time="10:00",
+#         patient=patient,
+#         doctor=doctor
+#     )
+#
+#     notif.send_reminder(patient, appointment)
+#
+#     medicine = Medicine(name="Aspirin", quantity=100)
+#     pharmacy.add_medicine(medicine)
+#
+#     prescription = Prescription(
+#         doctor=doctor,
+#         patient=patient,
+#         medicine=medicine,
+#         dosage="100mg",
+#         duration_days=5,
+#         valid_until=date(2025, 12, 30)
+#     )
+#
+#     doctor.issue_prescription(pres_repo, prescription)
+#
+#     print("Prescription created:", prescription.id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
