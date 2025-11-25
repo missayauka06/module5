@@ -1,0 +1,226 @@
+
+'''12pr'''
+
+# 1
+
+# import time
+#
+#
+# def check_library_card(reader):
+#
+#     print(f"\nПроверка читательского билета для {reader}...")
+#     time.sleep(0.7)
+#
+#     has_card = reader.get("has_card", False)
+#
+#     if has_card:
+#         print("Билет найден.")
+#         return True
+#     else:
+#         print("У читателя нет билета.")
+#         return False
+#
+#
+# #  Оформление билета
+#
+# def create_library_card(reader):
+#     print("\nОформление нового читательского билета...")
+#     time.sleep(1)
+#     reader["has_card"] = True
+#     print("Читательский билет оформлен!")
+#     return True
+#
+#
+# #  Проверка доступности книги
+#
+# def check_book_availability(book_title, library_books):
+#     print(f"\nПроверка доступности книги '{book_title}'...")
+#     time.sleep(0.7)
+#
+#     if library_books.get(book_title, 0) > 0:
+#         print("Книга доступна.")
+#         return True
+#     else:
+#         print("Книга недоступна.")
+#         return False
+#
+#
+# #  Регистрация выдачи книги
+#
+# def register_book_issue(reader, book_title, library_books):
+#     print("\nРегистрация выдачи книги...")
+#
+#     library_books[book_title] -= 1
+#     time.sleep(0.7)
+#
+#     print(f"Книга '{book_title}' зарегистрирована за читателем.")
+#     return True
+#
+#
+# #  Основной процесс выдачи
+#
+# def issue_book(reader, library_books):
+#     print("\n===== ПРОЦЕСС ВЫДАЧИ КНИГИ В БИБЛИОТЕКЕ =====\n")
+#
+#     print("Читатель приходит в библиотеку.")
+#
+#     if not check_library_card(reader):
+#         print("Предложение оформить билет...")
+#         create_library_card(reader)
+#
+#     book_title = reader.get("desired_book", "")
+#     print(f"\nЧитатель выбирает книгу: '{book_title}'")
+#
+#     if not check_book_availability(book_title, library_books):
+#         print("Предложение выбрать другую книгу.")
+#         return
+#
+#     register_book_issue(reader, book_title, library_books)
+#
+#     print("\nЧитатель получает книгу.")
+#     print("Процесс завершён.\n")
+#
+#
+#
+# library_books = {
+#     "Война и мир": 3,
+#     "Гарри Поттер": 0,
+#     "Преступление и наказание": 2
+# }
+#
+# reader = {
+#     "name": "Алиса",
+#     "has_card": False,
+#     "desired_book": "Война и мир"
+# }
+#
+# issue_book(reader, library_books)
+
+
+
+
+
+
+
+
+# 2
+
+import random
+import time
+
+#  Логин пользователя
+
+def login(user):
+    print(f"\nПользователь {user} входит в систему...")
+    time.sleep(0.5)
+    print("Вход успешно выполнен.")
+    return True
+
+
+#  Добавление товаров в корзину
+
+def add_items_to_cart(cart, items):
+    print("\nПользователь добавляет товары в корзину...")
+    time.sleep(0.5)
+    for item in items:
+        cart.append(item)
+        print(f" → Товар добавлен: {item}")
+    print("Корзина обновлена.")
+    return cart
+
+
+#  Проверка доступности товаров на складе
+
+def check_availability(cart, warehouse):
+    print("\nПроверка наличия товаров на складе...")
+    time.sleep(1)
+
+    unavailable = []
+
+    for item in cart:
+        if warehouse.get(item, 0) <= 0:
+            unavailable.append(item)
+
+    if unavailable:
+        print("Недоступные товары:", unavailable)
+        return {"status": "fail", "unavailable": unavailable}
+    else:
+        print("Все товары доступны.")
+        return {"status": "ok"}
+
+
+#  Онлайн-платёж через платёжный шлюз
+
+def online_payment(amount):
+    print("\nОбработка онлайн-платежа через платёжный шлюз...")
+    time.sleep(1)
+
+    success = random.choice([True, False, True])  # вероятность успеха ~66%
+
+    if success:
+        print("Платёж успешно выполнен.")
+        return True
+    else:
+        print("Платёж отклонён платёжным шлюзом.")
+        return False
+
+
+#  Уведомление склада о сборке заказа
+
+def notify_warehouse(cart):
+    print("\nУведомление склада о сборке заказа...")
+    time.sleep(1)
+    print("Склад получил заявку на сборку заказа.")
+    return True
+
+
+#  Основной процесс
+
+def process_order(user, items, warehouse, payment_method):
+    print("\n======== ОФОРМЛЕНИЕ ЗАКАЗА ========\n")
+
+    login(user)
+
+    cart = []
+    add_items_to_cart(cart, items)
+
+    print("\nПользователь подтверждает заказ.")
+
+    availability = check_availability(cart, warehouse)
+    if availability["status"] == "fail":
+        print("Пожалуйста, измените корзину.")
+        return
+
+    print("\nЗаказ подтверждён.")
+
+    print(f"\nВыбран способ оплаты: {payment_method}")
+
+    if payment_method == "online":
+        if not online_payment(amount=100):
+            print("Пожалуйста, повторите оплату.")
+            return
+    else:
+        print("Оплата будет выполнена при доставке.")
+
+    print("\nСистема: заказ успешно оформлен!")
+
+    notify_warehouse(cart)
+
+    print("\nПроцесс завершён. Спасибо за покупку!")
+
+
+
+warehouse = {
+    "Ноутбук": 3,
+    "Мышь": 0,
+    "Клавиатура": 5
+}
+
+items = ["Ноутбук", "Клавиатура"]
+
+process_order(
+    user="Ayan",
+    items=items,
+    warehouse=warehouse,
+    payment_method="online"   # или "delivery"
+)
