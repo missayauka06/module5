@@ -1,0 +1,380 @@
+
+
+# 13lab
+
+# 1
+#
+# from abc import ABC, abstractmethod
+#
+#
+# #   Интерфейс состояния
+#
+# class BookingState(ABC):
+#
+#     @abstractmethod
+#     def select_room(self):
+#         pass
+#
+#     @abstractmethod
+#     def confirm_booking(self):
+#         pass
+#
+#     @abstractmethod
+#     def pay(self):
+#         pass
+#
+#     @abstractmethod
+#     def cancel(self):
+#         pass
+#
+#
+# #   Контекст — система бронирования
+#
+# class BookingSystem:
+#
+#     def __init__(self):
+#         self.is_paid = False
+#
+#         self.idle_state = IdleState(self)
+#         self.room_selected_state = RoomSelectedState(self)
+#         self.booking_confirmed_state = BookingConfirmedState(self)
+#         self.paid_state = PaidState(self)
+#         self.cancelled_state = BookingCancelledState(self)
+#
+#         self.state = self.idle_state
+#
+#     def set_state(self, new_state):
+#         self.state = new_state
+#
+#     def select_room(self):
+#         self.state.select_room()
+#
+#     def confirm_booking(self):
+#         self.state.confirm_booking()
+#
+#     def pay(self):
+#         self.state.pay()
+#
+#     def cancel(self):
+#         self.state.cancel()
+#
+#
+# #   Состояние Idle
+#
+# class IdleState(BookingState):
+#
+#     def __init__(self, system):
+#         self.system = system
+#
+#     def select_room(self):
+#         print("Номер выбран. Можно подтверждать бронирование.")
+#         self.system.set_state(self.system.room_selected_state)
+#
+#     def confirm_booking(self):
+#         print("Нельзя подтвердить — номер не выбран.")
+#
+#     def pay(self):
+#         print("Оплата невозможна — бронирование не подтверждено.")
+#
+#     def cancel(self):
+#         print("Нечего отменять.")
+#
+#
+# #   Состояние RoomSelected
+#
+# class RoomSelectedState(BookingState):
+#
+#     def __init__(self, system):
+#         self.system = system
+#
+#     def select_room(self):
+#         print("Номер можно изменить перед подтверждением.")
+#
+#     def confirm_booking(self):
+#         print("Бронирование подтверждено. Ожидание оплаты.")
+#         self.system.set_state(self.system.booking_confirmed_state)
+#
+#     def pay(self):
+#         print("Нельзя оплатить — бронирование не подтверждено.")
+#
+#     def cancel(self):
+#         print("Бронирование отменено.")
+#         self.system.set_state(self.system.cancelled_state)
+#
+#
+# #   Состояние BookingConfirmed
+#
+# class BookingConfirmedState(BookingState):
+#
+#     def __init__(self, system):
+#         self.system = system
+#
+#     def select_room(self):
+#         print("Нельзя изменить номер после подтверждения.")
+#
+#     def confirm_booking(self):
+#         print("Бронирование уже подтверждено.")
+#
+#     def pay(self):
+#         print("Оплата выполнена. Бронирование завершено.")
+#         self.system.is_paid = True
+#         self.system.set_state(self.system.paid_state)
+#
+#     def cancel(self):
+#         print("Бронирование отменено.")
+#         self.system.set_state(self.system.cancelled_state)
+#
+#
+# #   Состояние Paid
+#
+# class PaidState(BookingState):
+#
+#     def __init__(self, system):
+#         self.system = system
+#
+#     def select_room(self):
+#         print("Нельзя изменить номер — бронирование оплачено.")
+#
+#     def confirm_booking(self):
+#         print("Бронирование уже завершено.")
+#
+#     def pay(self):
+#         print("Уже оплачено.")
+#
+#     def cancel(self):
+#         print("Невозможно отменить — бронирование оплачено.")
+#
+#
+# #   Состояние BookingCancelled
+#
+# class BookingCancelledState(BookingState):
+#
+#     def __init__(self, system):
+#         self.system = system
+#
+#     def select_room(self):
+#         print("Бронирование отменено. Начните заново.")
+#
+#     def confirm_booking(self):
+#         print("Нельзя подтвердить отменённое бронирование.")
+#
+#     def pay(self):
+#         print("Нельзя оплатить отменённое бронирование.")
+#
+#     def cancel(self):
+#         print("Уже отменено.")
+#
+#
+# if __name__ == "__main__":
+#
+#     booking = BookingSystem()
+#
+#     print("\n--- Процесс бронирования №1 ---")
+#     booking.select_room()
+#     booking.confirm_booking()
+#     booking.pay()   # завершение
+#
+#     print("\n--- Попытка отмены после оплаты ---")
+#     booking.cancel()
+#
+#     print("\n--- Процесс бронирования №2 ---")
+#     booking = BookingSystem()
+#     booking.select_room()
+#     booking.cancel()    # отмена до оплаты
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 2
+
+from abc import ABC, abstractmethod
+
+
+#   Интерфейс состояния
+
+class TicketState(ABC):
+
+    @abstractmethod
+    def send_to_client(self):
+        pass
+
+    @abstractmethod
+    def pay(self):
+        pass
+
+    @abstractmethod
+    def confirm(self):
+        pass
+
+    @abstractmethod
+    def cancel(self):
+        pass
+
+
+#   Контекст — заявка
+
+class TicketRequest:
+
+    def __init__(self):
+        self.created = CreatedState(self)
+        self.waiting = WaitingForPaymentState(self)
+        self.paid = PaidState(self)
+        self.confirmed = ConfirmedState(self)
+        self.cancelled = CancelledState(self)
+
+        self.state = self.created
+
+    def set_state(self, new_state):
+        self.state = new_state
+
+    def send_to_client(self):
+        self.state.send_to_client()
+
+    def pay(self):
+        self.state.pay()
+
+    def confirm(self):
+        self.state.confirm()
+
+    def cancel(self):
+        self.state.cancel()
+
+
+#   Состояние: Created
+
+class CreatedState(TicketState):
+
+    def __init__(self, req):
+        self.req = req
+
+    def send_to_client(self):
+        print("Заявка отправлена клиенту. Ожидаем оплату.")
+        self.req.set_state(self.req.waiting)
+
+    def pay(self):
+        print("Нельзя оплатить — заявка не отправлена клиенту.")
+
+    def confirm(self):
+        print("Нельзя подтвердить — заявка не оплачена.")
+
+    def cancel(self):
+        print("Заявка отменена.")
+        self.req.set_state(self.req.cancelled)
+
+
+#   Состояние: WaitingForPayment
+
+class WaitingForPaymentState(TicketState):
+
+    def __init__(self, req):
+        self.req = req
+
+    def send_to_client(self):
+        print("Заявка уже отправлена.")
+
+    def pay(self):
+        print("Оплата получена.")
+        self.req.set_state(self.req.paid)
+
+    def confirm(self):
+        print("Нельзя подтвердить — заявка не оплачена.")
+
+    def cancel(self):
+        print("Время оплаты истекло. Заявка отменена.")
+        self.req.set_state(self.req.cancelled)
+
+
+#   Состояние: Paid
+
+class PaidState(TicketState):
+
+    def __init__(self, req):
+        self.req = req
+
+    def send_to_client(self):
+        print("Заявка уже оплачена, отправлять повторно нельзя.")
+
+    def pay(self):
+        print("Заявка уже оплачена.")
+
+    def confirm(self):
+        print("Бронирование подтверждено.")
+        self.req.set_state(self.req.confirmed)
+
+    def cancel(self):
+        print("Заявка не может быть отменена после оплаты.")
+        self.req.set_state(self.req.cancelled)
+
+
+#   Состояние: Confirmed
+
+class ConfirmedState(TicketState):
+
+    def __init__(self, req):
+        self.req = req
+
+    def send_to_client(self):
+        print("Заявка уже подтверждена.")
+
+    def pay(self):
+        print("Уже оплачено.")
+
+    def confirm(self):
+        print("Уже подтверждено.")
+
+    def cancel(self):
+        print("Подтверждённую заявку нельзя отменить.")
+
+
+#   Состояние: Cancelled
+
+class CancelledState(TicketState):
+
+    def __init__(self, req):
+        self.req = req
+
+    def send_to_client(self):
+        print("Заявка отменена. Действие невозможно.")
+
+    def pay(self):
+        print("Оплата невозможна — заявка отменена.")
+
+    def confirm(self):
+        print("Нельзя подтвердить отменённую заявку.")
+
+    def cancel(self):
+        print("Заявка уже отменена.")
+
+
+#   Пример использования
+
+if __name__ == "__main__":
+    request = TicketRequest()
+
+    print("\n--- Процесс №1 ---")
+    request.send_to_client()
+    request.pay()
+    request.confirm()
+
+    print("\n--- Процесс №2 (отмена) ---")
+    request = TicketRequest()
+    request.send_to_client()
+    request.cancel()
