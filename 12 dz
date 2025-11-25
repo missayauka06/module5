@@ -1,4 +1,4 @@
-
+                1
 
 from enum import Enum, auto
 
@@ -89,3 +89,132 @@ if __name__ == "__main__":
     candidate = Candidate("Айгерим")
     system = HiringSystem()
     system.hire_candidate(vacancy, candidate)
+
+
+
+
+
+
+
+
+
+             2
+
+
+from dataclasses import dataclass
+from typing import List
+
+
+
+@dataclass
+class Client:
+    name: str
+
+    def request_venue(self, system: "BookingSystem", date: str):
+        print(f"[Клиент] {self.name}: хочу провести мероприятие {date}")
+        system.check_availability(self, date)
+
+    def confirm_booking(self, system: "BookingSystem"):
+        print(f"[Клиент] {self.name}: подтверждаю бронирование")
+        system.start_payment(self)
+
+    def send_feedback(self, system: "BookingSystem", text: str):
+        print(f"[Клиент] {self.name}: отправляю отзыв: '{text}'")
+        system.receive_feedback(self, text)
+
+
+class PaymentGateway:
+    def process_payment(self, amount: float) -> bool:
+        print(f"[Платёжный шлюз] Обрабатываю платеж на сумму {amount}...")
+        # здесь можно сделать любую логику, пока просто всегда успех
+        return True
+
+
+@dataclass
+class Admin:
+    name: str
+
+    def prepare_tasks(self) -> List[str]:
+        tasks = ["Декорации", "Еда", "Оборудование"]
+        print(f"[Администратор] {self.name}: формирую задачи: {tasks}")
+        return tasks
+
+    def receive_report(self):
+        print(f"[Администратор] {self.name}: получил отчёт по задачам.")
+
+
+class Contractors:
+    def receive_tasks(self, tasks: List[str]):
+        print(f"[Подрядчики] получили задачи: {tasks}")
+
+    def confirm_done(self):
+        print("[Подрядчики] все задачи выполнены.")
+
+
+@dataclass
+class Manager:
+    name: str
+
+    def receive_final_report(self, feedbacks: List[str]):
+        print(f"[Менеджер] {self.name}: получил итоговый отчёт и отзывы: {feedbacks}")
+
+
+# Система бронирования 
+
+class BookingSystem:
+    def __init__(self):
+        self.gateway = PaymentGateway()
+        self.admin = Admin("Иван")
+        self.contractors = Contractors()
+        self.manager = Manager("Ольга")
+        self.feedbacks: List[str] = []
+
+    # 1. Проверка доступности
+    def check_availability(self, client: Client, date: str):
+        print(f"[Система] проверяю доступность площадки на {date}...")
+        available = True  # упрощённо всегда доступна
+        if available:
+            print("[Система] площадка доступна, отправляю цену и условия клиенту.")
+            print("[Система] (например) Стоимость: 100000 тенге.")
+        else:
+            print("[Система] площадка недоступна, предлагаю другую дату.")
+
+    def start_payment(self, client: Client):
+        amount = 100000.0
+        print(f"[Система] запрашиваю предоплату {amount} через платёжный шлюз.")
+        ok = self.gateway.process_payment(amount)
+        if ok:
+            print("[Система] платёж успешен, бронирование подтверждено.")
+            print("[Система] отправляю уведомление клиенту и администратору.")
+            self.organize_event()
+        else:
+            print("[Система] платёж отклонён, прошу клиента повторить попытку.")
+
+    def organize_event(self):
+        tasks = self.admin.prepare_tasks()
+        self.contractors.receive_tasks(tasks)
+        self.contractors.confirm_done()
+        print("[Система] формирую отчёт для администратора.")
+        self.admin.receive_report()
+        # затем переходим к завершению
+        self.finish_event()
+
+    def finish_event(self):
+        print("[Система] мероприятие завершено, запрашиваю отзыв у клиента.")
+
+    def receive_feedback(self, client: Client, text: str):
+        self.feedbacks.append(text)
+        print("[Система] отзыв сохранён, отправляю итоговый отчёт менеджеру.")
+        self.manager.receive_final_report(self.feedbacks)
+
+
+
+if __name__ == "__main__":
+    system = BookingSystem()
+    client = Client("Айгерим")
+
+    client.request_venue(system, "2025-12-01")
+
+    client.confirm_booking(system)
+
+    client.send_feedback(system, "Все прошло отлично!")
