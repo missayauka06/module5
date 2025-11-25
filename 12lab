@@ -1,0 +1,261 @@
+
+
+'''12lad'''
+# # 1
+# import random
+# import time
+#
+# #   Проверка наличия товаров
+#
+# def check_stock(order_items, warehouse):
+#     missing = []
+#
+#     for item, qty in order_items.items():
+#         if warehouse.get(item, 0) < qty:
+#             missing.append(item)
+#
+#     if missing:
+#         return {
+#             "status": "not_available",
+#             "missing_items": missing
+#         }
+#     return {
+#         "status": "available"
+#     }
+#
+#
+# #   Обработка онлайн-платежа
+#
+# def process_online_payment(amount):
+#     print("\nОбработка онлайн оплаты...")
+#     time.sleep(1)
+#
+#     # моделируем успешный/неуспешный платёж
+#     success = random.choice([True, False, True])  # вероятность успеха 66%
+#
+#     if success:
+#         return {"status": "success"}
+#     else:
+#         return {"status": "fail"}
+#
+#
+# #   Сборка заказа на складе
+#
+# def assemble_order(order_items):
+#     print("\nСклад: начинается сборка заказа...")
+#     time.sleep(1)
+#
+#     for item, qty in order_items.items():
+#         print(f" → Собирается: {item} (x{qty})")
+#         time.sleep(0.5)
+#
+#     print("Склад: сборка завершена.")
+#     return {"status": "assembled"}
+#
+#
+# #   Обработка доставки
+#
+# def handle_delivery(delivery_type):
+#     if delivery_type == "courier":
+#         print("\nКурьерская служба: заказ принят.")
+#         print("Курьер доставляет заказ клиенту...")
+#         time.sleep(1.5)
+#         print("Клиент получил заказ.")
+#         return {"status": "delivered"}
+#
+#     elif delivery_type == "pickup":
+#         print("\nПункт самовывоза: заказ готов к выдаче.")
+#         print("Клиент забирает заказ самостоятельно.")
+#         return {"status": "picked_up"}
+#
+#     else:
+#         return {"status": "error", "message": "Неверный тип доставки"}
+#
+#
+# #   Основной процесс
+#
+# def process_order(order_items, warehouse, payment_method, delivery_type):
+#     print("\n=== Обработка заказа ===")
+#
+#     # 1. Проверка наличия товаров
+#     stock_result = check_stock(order_items, warehouse)
+#
+#     if stock_result["status"] == "not_available":
+#         print(f"Товары недоступны: {stock_result['missing_items']}")
+#         print("Клиенту отправлено уведомление для изменения заказа.")
+#         return
+#
+#     print("Все товары в наличии. Заказ подтверждён.")
+#
+#     # 2. Оплата
+#     if payment_method == "online":
+#         payment = process_online_payment(amount=100)
+#         if payment["status"] == "fail":
+#             print("Платеж отклонён. Клиенту отправлено уведомление.")
+#             return
+#         print("Оплата успешно выполнена.")
+#
+#     else:
+#         print("Оплата будет выполнена при получении.")
+#
+#     # 3. Сборка заказа
+#     assemble_order(order_items)
+#
+#     # 4. Доставка
+#     delivery_result = handle_delivery(delivery_type)
+#
+#     # 5. Завершение заказа
+#     print("\nСистема: заказ завершён.")
+#     print("Электронный чек отправлен клиенту.")
+#
+#
+#
+# order = {"phone": 1, "charger": 2}
+# warehouse = {"phone": 5, "charger": 3, "case": 10}
+#
+# process_order(
+#     order_items=order,
+#     warehouse=warehouse,
+#     payment_method="online",     # "online" или "cash"
+#     delivery_type="courier"      # "courier" или "pickup"
+# )
+
+
+
+
+
+
+
+
+# # 2
+# import random
+# import time
+# 
+# 
+# 
+# #  Проверка доступности курса
+# 
+# def check_course_availability(course_name, db_courses):
+#     print("\nПроверка доступности курса...")
+#     time.sleep(0.7)
+# 
+#     if db_courses.get(course_name, False):
+#         print("Курс доступен.")
+#         return True
+#     else:
+#         print("Курс недоступен.")
+#         return False
+# 
+# 
+# #  Добавление пользователя
+# 
+# def register_user_for_course(user, course_name, db_users):
+#     print(f"{user} добавлен в список участников курса '{course_name}'.")
+#     db_users.setdefault(course_name, []).append(user)
+# 
+# 
+# #  Онлайн-оплата
+# 
+# def process_online_payment(amount):
+#     print("\nОтправка запроса в платежный шлюз...")
+#     time.sleep(1)
+#     result = random.choice([True, False, True])  # 66% успешность
+# 
+#     if result:
+#         print("Платёж успешен.")
+#         return True
+#     else:
+#         print("Платёж отклонён.")
+#         return False
+# 
+# 
+# #  Выполнение модулей обучения
+# 
+# def simulate_learning_process(user, modules):
+#     results = {}
+#     print(f"\nПользователь {user} начинает обучение...")
+#     time.sleep(0.5)
+# 
+#     for module in modules:
+#         print(f"→ Выполнение модуля: {module}")
+#         score = random.randint(40, 100)
+#         print(f"   Результат: {score}")
+#         results[module] = score
+#         time.sleep(0.5)
+# 
+#     return results
+# 
+# 
+# #  Проверка результатов
+# 
+# def evaluate_results(results, passing_score=60):
+#     failed = [m for m, s in results.items() if s < passing_score]
+# 
+#     if failed:
+#         return {
+#             "status": "fail",
+#             "failed_modules": failed
+#         }
+#     else:
+#         return {
+#             "status": "success",
+#             "certificate": "CERT-" + str(random.randint(100000, 999999))
+#         }
+# 
+# 
+# #  Основной процесс курса
+# 
+# def process_course(user, course_name):
+#     db_courses = {
+#         "Python Basics": True,
+#         "Data Science": True,
+#         "UX Design": False
+#     }
+# 
+#     db_users = {}
+#     modules = ["Введение", "Теория", "Практика", "Итоговый тест"]
+# 
+#     print("\n=== ПРОЦЕСС ОБУЧЕНИЯ В ОНЛАЙН-КУРСЕ ===")
+# 
+#     # --- 1. Регистрация ---
+#     if not check_course_availability(course_name, db_courses):
+#         print("Пользователь получил уведомление о недоступности курса.")
+#         return
+# 
+#     register_user_for_course(user, course_name, db_users)
+# 
+#     # --- 2. Оплата ---
+#     payment_type = "online"  # можно заменить на "bank_transfer"
+#     print(f"\nПользователь выбирает оплату: {payment_type}")
+# 
+#     if payment_type == "online":
+#         if not process_online_payment(amount=100):
+#             print("Пользователь уведомлен о необходимости повторить оплату.")
+#             return
+#         print("Доступ к курсу активирован.")
+#     else:
+#         print("Пользователь получил инструкцию для банковского перевода.")
+#         return
+# 
+#     # --- 3. Обучение ---
+#     results = simulate_learning_process(user, modules)
+# 
+#     # --- 4. Проверка результатов ---
+#     evaluation = evaluate_results(results)
+# 
+#     if evaluation["status"] == "fail":
+#         print("\nРезультаты неудовлетворительные.")
+#         print("Модули для пересдачи:", evaluation["failed_modules"])
+#         return
+# 
+#     print("\nВсе результаты удовлетворительные!")
+#     print("Сертификат:", evaluation["certificate"])
+# 
+#     # --- 5. Завершение ---
+#     print("\nПользователь скачивает сертификат.")
+#     print("Данные сохранены в базе. Завершено успешно.")
+# 
+# 
+# # Запуск процесса
+# 
+# process_course("Ayan", "Python Basics")
