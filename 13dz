@@ -1,0 +1,367 @@
+
+
+# 13dz
+
+
+# 1
+
+
+#   Модели данных
+
+class Book:
+    def __init__(self, title, author, genre, available=True):
+        self.title = title
+        self.author = author
+        self.genre = genre
+        self.available = available
+
+
+class User:
+    def __init__(self, name, role="reader"):
+        self.name = name
+        self.role = role
+        self.reservations = []
+
+    def __str__(self):
+        return f"{self.name} ({self.role})"
+
+
+class Branch:
+    def __init__(self, name):
+        self.name = name
+        self.catalog = []
+
+
+#   Система управления библиотекой
+
+class LibrarySystem:
+    def __init__(self):
+        self.branches = {}
+        self.users = {}
+
+    def register_user(self, name, role="reader"):
+        user = User(name, role)
+        self.users[name] = user
+        print(f"Пользователь зарегистрирован: {user}")
+        return user
+
+    def add_branch(self, branch_name):
+        if branch_name in self.branches:
+            print("Филиал уже существует.")
+            return
+        self.branches[branch_name] = Branch(branch_name)
+        print(f"Филиал добавлен: {branch_name}")
+
+    def remove_branch(self, branch_name):
+        if branch_name in self.branches:
+            del self.branches[branch_name]
+            print(f"Филиал удалён: {branch_name}")
+        else:
+            print("Филиал не найден.")
+
+    def add_book(self, branch_name, book):
+        branch = self.branches.get(branch_name)
+        if branch:
+            branch.catalog.append(book)
+            print(f"Книга '{book.title}' добавлена в каталог филиала '{branch_name}'.")
+        else:
+            print("Филиал не найден.")
+
+    def remove_book(self, branch_name, title):
+        branch = self.branches.get(branch_name)
+        if branch:
+            branch.catalog = [b for b in branch.catalog if b.title != title]
+            print(f"Книга '{title}' удалена из каталога '{branch_name}'.")
+        else:
+            print("Филиал не найден.")
+
+    def search_books(self, branch_name, query):
+        branch = self.branches.get(branch_name)
+        if not branch:
+            print("Филиал не найден.")
+            return []
+
+        print(f"\nПоиск книг по запросу: '{query}'")
+        results = [b for b in branch.catalog if
+                   query.lower() in b.title.lower() or
+                   query.lower() in b.author.lower() or
+                   query.lower() in b.genre.lower()]
+        return results
+
+    def reserve_book(self, user_name, branch_name, title):
+        user = self.users.get(user_name)
+        branch = self.branches.get(branch_name)
+
+        if not user or not branch:
+            print("Ошибка: пользователь или филиал не найдены.")
+            return
+
+        for book in branch.catalog:
+            if book.title == title:
+                if book.available:
+                    book.available = False
+                    user.reservations.append(book.title)
+                    print(f"Книга '{title}' успешно забронирована пользователем {user_name}.")
+                else:
+                    print(f"Книга '{title}' недоступна для бронирования.")
+                return
+
+        print("Книга не найдена.")
+
+    def cancel_reservation(self, user_name, branch_name, title):
+        user = self.users.get(user_name)
+        branch = self.branches.get(branch_name)
+
+        if not user or not branch:
+            print("Ошибка: пользователь или филиал не найдены.")
+            return
+
+        if title in user.reservations:
+            user.reservations.remove(title)
+
+            for book in branch.catalog:
+                if book.title == title:
+                    book.available = True
+
+            print(f"Бронирование книги '{title}' отменено.")
+        else:
+            print("У пользователя нет такой брони.")
+
+    def analytics(self, branch_name):
+        branch = self.branches.get(branch_name)
+        if not branch:
+            print("Филиал не найден.")
+            return
+
+        total_books = len(branch.catalog)
+        unavailable = sum(not b.available for b in branch.catalog)
+
+        print("\n--- АНАЛИТИКА ---")
+        print(f"Филиал: {branch_name}")
+        print(f"Всего книг: {total_books}")
+        print(f"Выдано/забронировано: {unavailable}")
+        print(f"Доступно: {total_books - unavailable}")
+
+
+
+system = LibrarySystem()
+
+system.add_branch("Центральный")
+system.add_branch("Северный")
+
+system.register_user("Айжан", "reader")
+system.register_user("Марат", "librarian")
+system.register_user("Админ", "admin")
+
+system.add_book("Центральный", Book("Война и мир", "Толстой", "Роман"))
+system.add_book("Центральный", Book("Гарри Поттер", "Роулинг", "Фэнтези"))
+
+results = system.search_books("Центральный", "Гарри")
+for r in results:
+    print(f"Найдена книга: {r.title}")
+
+system.reserve_book("Айжан", "Центральный", "Гарри Поттер")
+
+system.cancel_reservation("Айжан", "Центральный", "Гарри Поттер")
+
+system.analytics("Центральный")
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 2
+#
+# from abc import ABC, abstractmethod
+#
+#
+# #   Интерфейс состояния
+#
+# class TicketState(ABC):
+#
+#     @abstractmethod
+#     def select_ticket(self):
+#         pass
+#
+#     @abstractmethod
+#     def insert_money(self, amount):
+#         pass
+#
+#     @abstractmethod
+#     def dispense_ticket(self):
+#         pass
+#
+#     @abstractmethod
+#     def cancel(self):
+#         pass
+#
+#
+# #   Контекст автомата
+#
+# class TicketMachine:
+#
+#     def __init__(self):
+#         self.ticket_price = 100
+#         self.money_inserted = 0
+#
+#         self.idle_state = IdleState(self)
+#         self.waiting_state = WaitingForMoneyState(self)
+#         self.money_received_state = MoneyReceivedState(self)
+#         self.dispensed_state = TicketDispensedState(self)
+#         self.canceled_state = TransactionCanceledState(self)
+#
+#         self.state = self.idle_state
+#
+#     def set_state(self, new_state):
+#         self.state = new_state
+#
+#     def select_ticket(self):
+#         self.state.select_ticket()
+#
+#     def insert_money(self, amount):
+#         self.state.insert_money(amount)
+#
+#     def dispense_ticket(self):
+#         self.state.dispense_ticket()
+#
+#     def cancel(self):
+#         self.state.cancel()
+#
+#
+# #   Состояние Idle
+#
+# class IdleState(TicketState):
+#
+#     def __init__(self, machine):
+#         self.machine = machine
+#
+#     def select_ticket(self):
+#         print("Билет выбран. Ожидание внесения денег.")
+#         self.machine.set_state(self.machine.waiting_state)
+#
+#     def insert_money(self, amount):
+#         print("Нельзя внести деньги — билет не выбран.")
+#
+#     def dispense_ticket(self):
+#         print("Нельзя выдать билет — покупка не начата.")
+#
+#     def cancel(self):
+#         print("Отменять нечего — автомат в режиме ожидания.")
+#
+#
+# #   Состояние WaitingForMoney
+#
+# class WaitingForMoneyState(TicketState):
+#
+#     def __init__(self, machine):
+#         self.machine = machine
+#
+#     def select_ticket(self):
+#         print("Билет уже выбран.")
+#
+#     def insert_money(self, amount):
+#         self.machine.money_inserted += amount
+#         print(f"Внесено: {self.machine.money_inserted} / {self.machine.ticket_price}")
+#
+#         if self.machine.money_inserted >= self.machine.ticket_price:
+#             print("Средств достаточно.")
+#             self.machine.set_state(self.machine.money_received_state)
+#         else:
+#             print("Недостаточно средств. Внесите ещё.")
+#
+#     def dispense_ticket(self):
+#         print("Недостаточно средств для выдачи билета.")
+#
+#     def cancel(self):
+#         print("Покупка отменена.")
+#         self.machine.set_state(self.machine.canceled_state)
+#
+#
+# #   Состояние MoneyReceived
+#
+# class MoneyReceivedState(TicketState):
+#
+#     def __init__(self, machine):
+#         self.machine = machine
+#
+#     def select_ticket(self):
+#         print("Билет уже выбран.")
+#
+#     def insert_money(self, amount):
+#         print("Денег достаточно — можно выдавать билет.")
+#
+#     def dispense_ticket(self):
+#         print("Выдача билета...")
+#         self.machine.set_state(self.machine.dispensed_state)
+#
+#     def cancel(self):
+#         print("Транзакция отменена. Деньги возвращены.")
+#         self.machine.set_state(self.machine.canceled_state)
+#
+#
+# #   Состояние TicketDispensed
+#
+# class TicketDispensedState(TicketState):
+#
+#     def __init__(self, machine):
+#         self.machine = machine
+#
+#     def select_ticket(self):
+#         print("Транзакция завершена. Начните новую покупку.")
+#
+#     def insert_money(self, amount):
+#         print("Билет уже выдан — ожидается новый клиент.")
+#
+#     def dispense_ticket(self):
+#         print("Билет уже выдан.")
+#
+#     def cancel(self):
+#         print("Нельзя отменить — билет уже выдан.")
+#
+#
+# #   Состояние TransactionCanceled
+#
+# class TransactionCanceledState(TicketState):
+#
+#     def __init__(self, machine):
+#         self.machine = machine
+#
+#     def select_ticket(self):
+#         print("Покупка была отменена. Начните заново.")
+#
+#     def insert_money(self, amount):
+#         print("Нельзя внести деньги — транзакция отменена.")
+#
+#     def dispense_ticket(self):
+#         print("Билет не выдан — покупка отменена.")
+#
+#     def cancel(self):
+#         print("Уже отменено.")
+#
+#
+# #   Пример использования
+#
+# if __name__ == "__main__":
+#     machine = TicketMachine()
+#
+#     print("\n--- Покупка билета ---")
+#
+#     machine.select_ticket()
+#     machine.insert_money(50)
+#     machine.insert_money(50)
+#     machine.dispense_ticket()
+#
+#     print("\n--- Попытка отменить после выдачи ---")
+#     machine.cancel()
+#
+#     print("\n--- Новая покупка ---")
+#     machine.select_ticket()
+#     machine.cancel()
