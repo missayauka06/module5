@@ -1,0 +1,388 @@
+
+
+
+'''11  pr'''
+
+
+# 1
+#
+# from dataclasses import dataclass, field
+# from typing import List, Optional
+#
+#
+# #                       BASE CLASS
+#
+# @dataclass
+# class User:
+#     id: int
+#     name: str
+#     email: str
+#
+#     def updateProfile(self, **kwargs):
+#         for k, v in kwargs.items():
+#             if hasattr(self, k):
+#                 setattr(self, k, v)
+#
+#
+# #                         STUDENT
+#
+# @dataclass
+# class Student(User):
+#     recordBook: str
+#     courses: List["Course"] = field(default_factory=list)
+#     grades: List["Grade"] = field(default_factory=list)
+#
+#     def registerCourse(self, course: "Course"):
+#         if self not in course.students:
+#             course.students.append(self)
+#             self.courses.append(course)
+#
+#     def viewGrades(self):
+#         return self.grades
+#
+#
+# #                         TEACHER
+#
+# @dataclass
+# class Teacher(User):
+#     position: str
+#     courses: List["Course"] = field(default_factory=list)
+#
+#     def teachCourse(self, course: "Course"):
+#         if course not in self.courses:
+#             self.courses.append(course)
+#             course.teachers.append(self)
+#
+#     def setGrade(self, exam: "Exam", student: Student, value: int):
+#         grade = Grade(value=value, student=student)
+#         exam.grades.append(grade)
+#         student.grades.append(grade)
+#
+#
+# #                        ADMINISTRATOR
+#
+# @dataclass
+# class Administrator(User):
+#
+#     def addFaculty(self, university: "University", faculty: "Faculty"):
+#         university.faculties.append(faculty)
+#
+#     def removeFaculty(self, university: "University", faculty: "Faculty"):
+#         if faculty in university.faculties:
+#             university.faculties.remove(faculty)
+#
+#     def addCourse(self, dept: "Department", course: "Course"):
+#         dept.courses.append(course)
+#
+#
+# #                          UNIVERSITY
+#
+# @dataclass
+# class University:
+#     name: str
+#     address: str
+#     faculties: List["Faculty"] = field(default_factory=list)
+#
+#     def addFaculty(self, faculty: "Faculty"):
+#         self.faculties.append(faculty)
+#
+#     def removeFaculty(self, faculty: "Faculty"):
+#         if faculty in self.faculties:
+#             self.faculties.remove(faculty)
+#
+#
+# #                          FACULTY
+#
+# @dataclass
+# class Faculty:
+#     name: str
+#     departments: List["Department"] = field(default_factory=list)
+#
+#     def addDepartment(self, dept: "Department"):
+#         self.departments.append(dept)
+#
+#     def removeDepartment(self, dept: "Department"):
+#         if dept in self.departments:
+#             self.departments.remove(dept)
+#
+#
+#
+# #                         DEPARTMENT
+#
+# @dataclass
+# class Department:
+#     name: str
+#     teachers: List[Teacher] = field(default_factory=list)
+#     courses: List["Course"] = field(default_factory=list)
+#
+#     def addTeacher(self, teacher: Teacher):
+#         self.teachers.append(teacher)
+#
+#     def removeTeacher(self, teacher: Teacher):
+#         if teacher in self.teachers:
+#             self.teachers.remove(teacher)
+#
+#
+#
+# #                            COURSE
+#
+# @dataclass
+# class Course:
+#     name: str
+#     code: str
+#     students: List[Student] = field(default_factory=list)
+#     teachers: List[Teacher] = field(default_factory=list)
+#     schedule: Optional["Schedule"] = None
+#     exams: List["Exam"] = field(default_factory=list)
+#
+#     def addStudent(self, student: Student):
+#         if student not in self.students:
+#             self.students.append(student)
+#             student.courses.append(self)
+#
+#     def removeStudent(self, student: Student):
+#         if student in self.students:
+#             self.students.remove(student)
+#             if self in student.courses:
+#                 student.courses.remove(self)
+#
+#
+# #                           SCHEDULE
+#
+# @dataclass
+# class Schedule:
+#     date: str
+#     time: str
+#     room: str
+#
+#     def createSchedule(self):
+#         print("Расписание создано.")
+#
+#     def changeSchedule(self, date: str, time: str, room: str):
+#         self.date = date
+#         self.time = time
+#         self.room = room
+#
+#
+# #                           EXAM
+#
+# @dataclass
+# class Exam:
+#     course: Course
+#     date: str
+#     grades: List["Grade"] = field(default_factory=list)
+#
+#     def scheduleExam(self):
+#         print(f"Экзамен назначен на {self.date} по курсу {self.course.name}")
+#
+#     def assignGrade(self, grade: "Grade"):
+#         self.grades.append(grade)
+#
+#
+# #                           GRADE
+#
+# @dataclass
+# class Grade:
+#     value: int
+#     student: Student
+#
+#
+# #                     SIMPLE DEMO (опционально)
+#
+# if __name__ == "__main__":
+#     uni = University(name="My University", address="City")
+#     fac = Faculty(name="ФКТИ")
+#     dept = Department(name="Кафедра ИС")
+#
+#     admin = Administrator(id=1, name="Админ", email="admin@uni.kz")
+#     admin.addFaculty(uni, fac)
+#     fac.addDepartment(dept)
+#
+#     teacher = Teacher(id=2, name="Иванов", email="ivanov@uni.kz", position="доцент")
+#     student = Student(id=3, name="Айгерим", email="aigerim@uni.kz", recordBook="RB-001")
+#
+#     dept.addTeacher(teacher)
+#
+#     course = Course(name="ООП", code="CS101")
+#     admin.addCourse(dept, course)
+#
+#     teacher.teachCourse(course)
+#     student.registerCourse(course)
+#
+#     schedule = Schedule(date="2025-12-01", time="10:00", room="Ауд. 101")
+#     course.schedule = schedule
+#
+#     exam = Exam(course=course, date="2025-12-20")
+#     course.exams.append(exam)
+#     exam.scheduleExam()
+#
+#     teacher.setGrade(exam, student, 95)
+#     print("Оценки студента:", student.viewGrades())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 2
+
+# from abc import ABC, abstractmethod
+# 
+# 
+# 
+# # 1. Interfaces
+# 
+# class RestAPI(ABC):
+#     @abstractmethod
+#     def send_request(self, endpoint: str, data: dict): pass
+# 
+# 
+# class SQLInterface(ABC):
+#     @abstractmethod
+#     def query(self, sql: str): pass
+# 
+# 
+# class AuthAPI(ABC):
+#     @abstractmethod
+#     def authenticate(self, token: str): pass
+# 
+# 
+# class PaymentAPI(ABC):
+#     @abstractmethod
+#     def process_payment(self, payment_data: dict): pass
+# 
+# 
+# class NotificationAPI(ABC):
+#     @abstractmethod
+#     def send_notification(self, user_id: str, message: str): pass
+# 
+# 
+# class AnalyticsAPI(ABC):
+#     @abstractmethod
+#     def collect_event(self, event: dict): pass
+# 
+# 
+# class MonitoringAPI(ABC):
+#     @abstractmethod
+#     def log_status(self, component: str, status: str): pass
+# 
+# 
+# 
+# # 2. Components
+# 
+# # ---------- Database ----------
+# class Database(SQLInterface):
+#     def __init__(self):
+#         self.storage = {}
+# 
+#     def query(self, sql: str):
+#         print(f"[DB] Executing SQL: {sql}")
+#         return self.storage
+# 
+# 
+# # ---------- Authentication ----------
+# class AuthService(AuthAPI):
+#     def authenticate(self, token: str):
+#         print(f"[Auth] Authenticating token: {token}")
+#         return token == "valid-token"
+# 
+# 
+# # ---------- Payment Gateway ----------
+# class PaymentGateway(PaymentAPI):
+#     def process_payment(self, payment_data: dict):
+#         print(f"[PaymentGateway] Processing payment via external bank systems…")
+#         return {"status": "success", "id": "TXN12345"}
+# 
+# 
+# # ---------- Notification Service ----------
+# class NotificationService(NotificationAPI):
+#     def send_notification(self, user_id: str, message: str):
+#         print(f"[Notification] User {user_id}: {message}")
+# 
+# 
+# # ---------- Analytics ----------
+# class AnalyticsModule(AnalyticsAPI):
+#     def collect_event(self, event: dict):
+#         print(f"[Analytics] Event collected: {event}")
+# 
+# 
+# # ---------- Monitoring ----------
+# class MonitoringSystem(MonitoringAPI):
+#     def log_status(self, component: str, status: str):
+#         print(f"[Monitoring] {component} → {status}")
+# 
+# 
+# # 3. Backend
+# 
+# class BackendServer(RestAPI):
+#     def __init__(self, db: SQLInterface,
+#                  auth: AuthAPI,
+#                  payments: PaymentAPI,
+#                  notifications: NotificationAPI,
+#                  analytics: AnalyticsAPI,
+#                  monitoring: MonitoringAPI):
+# 
+#         self.db = db
+#         self.auth = auth
+#         self.payments = payments
+#         self.notifications = notifications
+#         self.analytics = analytics
+#         self.monitoring = monitoring
+# 
+#     def send_request(self, endpoint: str, data: dict):
+#         self.monitoring.log_status("Backend", "Processing request")
+#         print(f"[Backend] Handling endpoint: {endpoint}")
+# 
+#         if endpoint == "/balance":
+#             return self.db.query("SELECT balance FROM accounts")
+# 
+#         if endpoint == "/pay":
+#             result = self.payments.process_payment(data)
+#             self.notifications.send_notification("user123", "Payment completed!")
+#             self.analytics.collect_event({"type": "payment", "status": result["status"]})
+#             return result
+# 
+#         return {"status": "unknown endpoint"}
+# 
+# 
+# # 4. Frontend
+# 
+# 
+# class FrontendApp:
+#     def __init__(self, backend: RestAPI):
+#         self.backend = backend
+# 
+#     def show_balance(self):
+#         print("[Frontend] User checks balance")
+#         return self.backend.send_request("/balance", {})
+# 
+#     def make_payment(self, amount: float):
+#         print("[Frontend] User initiates payment")
+#         return self.backend.send_request("/pay", {"amount": amount})
+# 
+# 
+# 
+# if __name__ == "__main__":
+#     # Create components
+#     db = Database()
+#     auth = AuthService()
+#     payments = PaymentGateway()
+#     notifications = NotificationService()
+#     analytics = AnalyticsModule()
+#     monitoring = MonitoringSystem()
+# 
+#     backend = BackendServer(db, auth, payments, notifications, analytics, monitoring)
+#     frontend = FrontendApp(backend)
+# 
+#     # Simulate operations
+#     print(frontend.show_balance())
+#     print(frontend.make_payment(1500))
