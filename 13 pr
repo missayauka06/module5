@@ -1,0 +1,506 @@
+
+
+# 13 pr
+
+# 1
+
+# from abc import ABC, abstractmethod
+#
+# #   Интерфейс состояния
+#
+# class OrderState(ABC):
+#
+#     @abstractmethod
+#     def select_car(self):
+#         pass
+#
+#     @abstractmethod
+#     def confirm_order(self):
+#         pass
+#
+#     @abstractmethod
+#     def car_arrived(self):
+#         pass
+#
+#     @abstractmethod
+#     def start_trip(self):
+#         pass
+#
+#     @abstractmethod
+#     def complete_trip(self):
+#         pass
+#
+#     @abstractmethod
+#     def pay(self):
+#         pass
+#
+#     @abstractmethod
+#     def cancel_order(self):
+#         pass
+#
+#
+# #   Контекст — заказ такси
+#
+# class TaxiOrder:
+#
+#     def __init__(self):
+#         self.idle = IdleState(self)
+#         self.car_selected = CarSelectedState(self)
+#         self.order_confirmed = OrderConfirmedState(self)
+#         self.car_arrived = CarArrivedState(self)
+#         self.in_trip = InTripState(self)
+#         self.trip_completed = TripCompletedState(self)
+#         self.trip_cancelled = TripCancelledState(self)
+#
+#         self.state = self.idle
+#
+#     def set_state(self, new_state):
+#         self.state = new_state
+#
+#     def select_car(self):
+#         self.state.select_car()
+#
+#     def confirm_order(self):
+#         self.state.confirm_order()
+#
+#     def car_arrived_action(self):
+#         self.state.car_arrived()
+#
+#     def start_trip(self):
+#         self.state.start_trip()
+#
+#     def complete_trip(self):
+#         self.state.complete_trip()
+#
+#     def pay(self):
+#         self.state.pay()
+#
+#     def cancel_order(self):
+#         self.state.cancel_order()
+#
+#
+# #   Состояние Idle
+#
+# class IdleState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Автомобиль выбран.")
+#         self.order.set_state(self.order.car_selected)
+#
+#     def confirm_order(self):
+#         print("Нельзя подтвердить — автомобиль не выбран.")
+#
+#     def car_arrived(self):
+#         print("Невозможно — заказ не подтвержден.")
+#
+#     def start_trip(self):
+#         print("Сначала выберите и подтвердите автомобиль.")
+#
+#     def complete_trip(self):
+#         print("Нельзя завершить — поездка не начата.")
+#
+#     def pay(self):
+#         print("Нельзя оплатить — поездка не выполнена.")
+#
+#     def cancel_order(self):
+#         print("Нечего отменять.")
+#
+#
+# #   Состояние CarSelected
+#
+# class CarSelectedState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Автомобиль можно изменить перед подтверждением.")
+#
+#     def confirm_order(self):
+#         print("Заказ подтвержден. Автомобиль в пути.")
+#         self.order.set_state(self.order.order_confirmed)
+#
+#     def car_arrived(self):
+#         print("Пока автомобиль не может прибыть — заказ не подтвержден.")
+#
+#     def start_trip(self):
+#         print("Невозможно — автомобиль ещё не приехал.")
+#
+#     def complete_trip(self):
+#         print("Сначала нужно совершить поездку.")
+#
+#     def pay(self):
+#         print("Оплата производится после завершения поездки.")
+#
+#     def cancel_order(self):
+#         print("Заказ отменён.")
+#         self.order.set_state(self.order.trip_cancelled)
+#
+#
+# #   Состояние OrderConfirmed
+#
+# class OrderConfirmedState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Нельзя изменить авто после подтверждения.")
+#
+#     def confirm_order(self):
+#         print("Уже подтверждено.")
+#
+#     def car_arrived(self):
+#         print("Автомобиль прибыл к пользователю.")
+#         self.order.set_state(self.order.car_arrived)
+#
+#     def start_trip(self):
+#         print("Нельзя начать — автомобиль ещё не приехал.")
+#
+#     def complete_trip(self):
+#         print("Нельзя завершить — поездка не начата.")
+#
+#     def pay(self):
+#         print("Оплата после завершения.")
+#
+#     def cancel_order(self):
+#         print("Заказ отменён.")
+#         self.order.set_state(self.order.trip_cancelled)
+#
+#
+# #   Состояние CarArrived
+#
+# class CarArrivedState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Нельзя изменить авто — оно уже прибыло.")
+#
+#     def confirm_order(self):
+#         print("Заказ уже подтвержден.")
+#
+#     def car_arrived(self):
+#         print("Авто уже прибыло.")
+#
+#     def start_trip(self):
+#         print("Поездка начата.")
+#         self.order.set_state(self.order.in_trip)
+#
+#     def complete_trip(self):
+#         print("Нельзя завершить — поездка не начата.")
+#
+#     def pay(self):
+#         print("Оплата позже — после завершения поездки.")
+#
+#     def cancel_order(self):
+#         print("Заказ отменён.")
+#         self.order.set_state(self.order.trip_cancelled)
+#
+#
+# #   Состояние InTrip
+#
+# class InTripState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Поездка уже выполняется.")
+#
+#     def confirm_order(self):
+#         print("Заказ уже подтвержден.")
+#
+#     def car_arrived(self):
+#         print("Авто уже здесь.")
+#
+#     def start_trip(self):
+#         print("Поездка уже идёт.")
+#
+#     def complete_trip(self):
+#         print("Поездка завершена. Ожидается оплата.")
+#         self.order.set_state(self.order.trip_completed)
+#
+#     def pay(self):
+#         print("Оплата после завершения поездки.")
+#
+#     def cancel_order(self):
+#         print("Заказ отменён (проблема или отказ).")
+#         self.order.set_state(self.order.trip_cancelled)
+#
+#
+# #   Состояние TripCompleted
+#
+# class TripCompletedState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Поездка уже завершена.")
+#
+#     def confirm_order(self):
+#         print("Уже подтверждено.")
+#
+#     def car_arrived(self):
+#         print("Поездка завершена.")
+#
+#     def start_trip(self):
+#         print("Поездка завершена.")
+#
+#     def complete_trip(self):
+#         print("Уже завершено.")
+#
+#     def pay(self):
+#         print("Оплата успешно выполнена. Заказ закрыт.")
+#         self.order.set_state(self.order.trip_cancelled)
+#
+#     def cancel_order(self):
+#         print("Заказ отменять поздно — поездка завершена.")
+#
+#
+# #   Состояние TripCancelled
+#
+# class TripCancelledState(OrderState):
+#
+#     def __init__(self, order):
+#         self.order = order
+#
+#     def select_car(self):
+#         print("Заказ отменён. Начните заново.")
+#
+#     def confirm_order(self):
+#         print("Заказ отменён.")
+#
+#     def car_arrived(self):
+#         print("Авто не прибудет — заказ отменён.")
+#
+#     def start_trip(self):
+#         print("Путешествие невозможно — заказ отменён.")
+#
+#     def complete_trip(self):
+#         print("Поездка не выполнялась — заказ отменён.")
+#
+#     def pay(self):
+#         print("Оплата невозможна — заказ отменён.")
+#
+#     def cancel_order(self):
+#         print("Уже отменён.")
+#
+#
+#
+# if __name__ == "__main__":
+#
+#     order = TaxiOrder()
+#
+#     print("\n--- Сценарий 1: Успешная поездка ---")
+#     order.select_car()
+#     order.confirm_order()
+#     order.car_arrived_action()
+#     order.start_trip()
+#     order.complete_trip()
+#     order.pay()
+#
+#     print("\n--- Сценарий 2: Отмена до начала ---")
+#     order = TaxiOrder()
+#     order.select_car()
+#     order.cancel_order()
+#
+#     print("\n--- Сценарий 3: Задержка автомобиля и отмена ---")
+#     order = TaxiOrder()
+#     order.select_car()
+#     order.confirm_order()
+#     print("Автомобиль задерживается...")
+#     order.cancel_order()
+
+
+
+
+
+
+
+
+# 2
+
+#   Классы сущностей
+#
+# class Event:
+#     def __init__(self, event_id, title, date, location):
+#         self.id = event_id
+#         self.title = title
+#         self.date = date
+#         self.location = location
+#
+#
+# class User:
+#     def __init__(self, user_id, name, role):  # role: guest, user, admin
+#         self.id = user_id
+#         self.name = name
+#         self.role = role
+#
+#
+# class Booking:
+#     def __init__(self, booking_id, user, event, status="Active"):
+#         self.id = booking_id
+#         self.user = user
+#         self.event = event
+#         self.status = status  # Active / Cancelled
+#
+#
+# #   Основная система
+#
+# class EventSystem:
+#     def __init__(self):
+#         self.events = []
+#         self.users = []
+#         self.bookings = []
+#
+#     def view_events(self):
+#         print("\n--- Список мероприятий ---")
+#         for e in self.events:
+#             print(f"{e.id}. {e.title} — {e.date}, {e.location}")
+#
+#     def book_event(self, user, event_id):
+#         if user.role not in ("user", "admin"):
+#             print("Гость не может бронировать!")
+#             return
+#
+#         event = next((e for e in self.events if e.id == event_id), None)
+#         if not event:
+#             print("Мероприятие не найдено.")
+#             return
+#
+#         booking = Booking(len(self.bookings) + 1, user, event)
+#         self.bookings.append(booking)
+#
+#         print(f"{user.name} забронировал мероприятие '{event.title}'.")
+#
+#     def cancel_booking(self, user, booking_id):
+#         booking = next((b for b in self.bookings if b.id == booking_id), None)
+#
+#         if not booking or booking.user.id != user.id:
+#             print("Нельзя отменить!")
+#             return
+#
+#         booking.status = "Cancelled"
+#         print(f"Бронирование №{booking_id} отменено.")
+#
+#     def add_event(self, admin, event):
+#         if admin.role != "admin":
+#             print("Нет прав!")
+#             return
+#         self.events.append(event)
+#         print(f"Добавлено мероприятие: {event.title}")
+#
+#     def delete_event(self, admin, event_id):
+#         if admin.role != "admin":
+#             print("Нет прав!")
+#             return
+#         self.events = [e for e in self.events if e.id != event_id]
+#         print(f"Мероприятие {event_id} удалено.")
+#
+#     def view_all_bookings(self, admin):
+#         if admin.role != "admin":
+#             print("Нет прав!")
+#             return
+#
+#         print("\n--- Все бронирования ---")
+#         for b in self.bookings:
+#             print(f"{b.id}. {b.user.name} → {b.event.title} ({b.status})")
+#
+#
+#
+# if __name__ == "__main__":
+#     system = EventSystem()
+#
+#     # Пользователи
+#     guest = User(1, "Гость", "guest")
+#     user = User(2, "Алина", "user")
+#     admin = User(3, "Админ", "admin")
+#
+#     # Мероприятия
+#     system.events.append(Event(1, "Концерт", "12.06.2025", "Зал"))
+#     system.events.append(Event(2, "Выставка", "15.06.2025", "Галерея"))
+#
+#     system.view_events()
+#
+#     system.book_event(user, 1)
+#     system.book_event(guest, 2)
+#
+#     system.cancel_booking(user, 1)
+#
+#     system.add_event(admin, Event(3, "Фестиваль", "20.07.2025", "Парк"))
+#     system.view_all_bookings(admin)
+
+
+
+
+# 3
+
+#   Классы товаров, заказов и обработки
+
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+
+class Order:
+    def __init__(self, customer):
+        self.customer = customer
+        self.cart = []
+        self.paid = False
+
+    def add_product(self, product):
+        self.cart.append(product)
+        print(f"Добавлен товар: {product.name} ({product.price}₸)")
+
+    def total(self):
+        return sum(p.price for p in self.cart)
+
+    def pay(self, money):
+        print("\n--- Оплата ---")
+        if money >= self.total():
+            self.paid = True
+            print("Оплата прошла успешно.")
+        else:
+            print("Ошибка оплаты: недостаточно средств.")
+            self.paid = False
+
+    def summary(self):
+        print("\n--- Корзина ---")
+        for p in self.cart:
+            print(f"- {p.name} ({p.price}₸)")
+        print(f"Итого: {self.total()}₸")
+
+
+class OrderProcessor:
+    def process(self, order):
+        if not order.paid:
+            print("\nНельзя обработать неоплаченный заказ.")
+            return
+
+        print("\n--- Обработка заказа ---")
+        print("Заказ отправлен на склад...")
+        print("Заказ упакован...")
+        print("Заказ передан в службу доставки...")
+        print("Заказ успешно отправлен!")
+
+
+
+if __name__ == "__main__":
+    order = Order("Алия")
+
+    order.add_product(Product("Ноутбук", 350000))
+    order.add_product(Product("Мышь", 7000))
+
+    order.summary()
+
+    order.pay(360000)
+
+    processor = OrderProcessor()
+    processor.process(order)
