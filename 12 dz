@@ -1,0 +1,91 @@
+
+
+from enum import Enum, auto
+
+
+class ApplicationStatus(Enum):
+    DRAFT = auto()
+    PENDING_HR = auto()
+    REJECTED = auto()
+    APPROVED = auto()
+
+
+class CandidateStatus(Enum):
+    APPLIED = auto()
+    REJECTED = auto()
+    INVITED = auto()
+    INTERVIEW_OK = auto()
+    TECH_OK = auto()
+    OFFER_SENT = auto()
+    OFFER_ACCEPTED = auto()
+    OFFER_DECLINED = auto()
+    HIRED = auto()
+
+
+class VacancyRequest:
+    def __init__(self, title: str, manager: str):
+        self.title = title
+        self.manager = manager
+        self.status = ApplicationStatus.DRAFT
+
+    def submit_to_hr(self):
+        self.status = ApplicationStatus.PENDING_HR
+
+    def approve(self):
+        self.status = ApplicationStatus.APPROVED
+
+    def reject(self):
+        self.status = ApplicationStatus.REJECTED
+
+
+class Candidate:
+    def __init__(self, name: str):
+        self.name = name
+        self.status = CandidateStatus.APPLIED
+
+    def reject(self):
+        self.status = CandidateStatus.REJECTED
+
+    def invite(self):
+        self.status = CandidateStatus.INVITED
+
+    def interview_pass(self):
+        self.status = CandidateStatus.INTERVIEW_OK
+
+    def tech_pass(self):
+        self.status = CandidateStatus.TECH_OK
+
+    def offer_sent(self):
+        self.status = CandidateStatus.OFFER_SENT
+
+    def accept_offer(self):
+        self.status = CandidateStatus.OFFER_ACCEPTED
+        self.status = CandidateStatus.HIRED
+
+    def decline_offer(self):
+        self.status = CandidateStatus.OFFER_DECLINED
+
+
+class HiringSystem:
+    def hire_candidate(self, vacancy: VacancyRequest, candidate: Candidate):
+        if vacancy.status != ApplicationStatus.APPROVED:
+            raise ValueError("Вакансия не утверждена HR")
+
+        candidate.invite()
+        candidate.interview_pass()
+        candidate.tech_pass()
+
+        candidate.offer_sent()
+        # допустим, кандидат согласился:
+        candidate.accept_offer()
+        print(f"Кандидат {candidate.name} принят на работу по вакансии '{vacancy.title}'")
+
+
+if __name__ == "__main__":
+    vacancy = VacancyRequest("Python-разработчик", "Руководитель отдела")
+    vacancy.submit_to_hr()
+    vacancy.approve()
+
+    candidate = Candidate("Айгерим")
+    system = HiringSystem()
+    system.hire_candidate(vacancy, candidate)
