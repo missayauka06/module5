@@ -1,0 +1,144 @@
+from abc import ABC, abstractmethod
+import platform
+
+
+class IButton(ABC):
+    @abstractmethod
+    def render(self):
+        pass
+
+
+class IMenu(ABC):
+    @abstractmethod
+    def render(self):
+        pass
+
+
+class IWindow(ABC):
+    @abstractmethod
+    def open(self):
+        pass
+
+
+class WindowsButton(IButton):
+    def render(self):
+        print("Кнопка Windows отображается")
+
+
+class WindowsMenu(IMenu):
+    def render(self):
+        print("Меню Windows отображается")
+
+
+class WindowsWindow(IWindow):
+    def open(self):
+        print("Окно Windows открыто")
+
+
+
+class MacOSButton(IButton):
+    def render(self):
+        print("Кнопка macOS отображается")
+
+
+class MacOSMenu(IMenu):
+    def render(self):
+        print("Меню macOS отображается")
+
+
+class MacOSWindow(IWindow):
+    def open(self):
+        print("Окно macOS открыто")
+
+
+
+class LinuxButton(IButton):
+    def render(self):
+        print("Кнопка Linux отображается")
+
+
+class LinuxMenu(IMenu):
+    def render(self):
+        print("Меню Linux отображается")
+
+
+class LinuxWindow(IWindow):
+    def open(self):
+        print("Окно Linux открыто")
+
+
+
+class UIFactory(ABC):
+    @abstractmethod
+    def create_button(self):
+        pass
+
+    @abstractmethod
+    def create_menu(self):
+        pass
+
+    @abstractmethod
+    def create_window(self):
+        pass
+
+
+
+class WindowsUIFactory(UIFactory):
+    def create_button(self):
+        return WindowsButton()
+
+    def create_menu(self):
+        return WindowsMenu()
+
+    def create_window(self):
+        return WindowsWindow()
+
+
+class MacOSUIFactory(UIFactory):
+    def create_button(self):
+        return MacOSButton()
+
+    def create_menu(self):
+        return MacOSMenu()
+
+    def create_window(self):
+        return MacOSWindow()
+
+
+class LinuxUIFactory(UIFactory):
+    def create_button(self):
+        return LinuxButton()
+
+    def create_menu(self):
+        return LinuxMenu()
+
+    def create_window(self):
+        return LinuxWindow()
+
+
+
+def get_factory():
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        return WindowsUIFactory()
+    elif os_name == "Darwin":
+        return MacOSUIFactory()
+    else:
+        return LinuxUIFactory()
+
+
+def main():
+    factory = get_factory()
+
+    window = factory.create_window()
+    menu = factory.create_menu()
+    button = factory.create_button()
+
+    window.open()
+    menu.render()
+    button.render()
+
+
+if __name__ == "__main__":
+    main()
