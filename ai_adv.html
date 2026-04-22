@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>AI Advisor Chat</title>
+
+<style>
+
+/* Чат контейнер */
+#chat-container{
+width:350px;
+height:500px;
+border:1px solid #ccc;
+border-radius:10px;
+display:flex;
+flex-direction:column;
+font-family:Arial;
+}
+
+/* Хабарламалар */
+#messages{
+flex:1;
+padding:10px;
+overflow-y:auto;
+}
+
+/* Input аймағы */
+#input-area{
+display:flex;
+border-top:1px solid #ccc;
+}
+
+#user-input{
+flex:1;
+padding:10px;
+border:none;
+outline:none;
+}
+
+button{
+padding:10px;
+background:#4CAF50;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#45a049;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>AI Advisor</h2>
+
+<div id="chat-container">
+
+<div id="messages"></div>
+
+<div id="input-area">
+<input id="user-input" placeholder="Сұрақ қойыңыз...">
+<button onclick="sendMessage()">Жіберу</button>
+</div>
+
+</div>
+
+<script src="add.js"></script>
+
+</body>
+</html>

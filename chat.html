@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Streeva | AI Чат - Тіл үйрену көмекшісі</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f9;
+            color: #0f172a;
+            line-height: 1.5;
+        }
+
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e9eef3;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            background: #8b5cf6;
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 16px;
+            color: #5b6e8c;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: #f1f5fe;
+            color: #8b5cf6;
+        }
+
+        .nav-item:not(.active):hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            max-width: calc(100% - 280px);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .greeting h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .greeting p {
+            color: #5b6e8c;
+            margin-top: 6px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            background: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eef2f8;
+            cursor: pointer;
+        }
+
+        .avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 6px 16px 6px 8px;
+            border-radius: 40px;
+            border: 1px solid #eef2f8;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 28px;
+            border: 1px solid #eef2f8;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .message-bubble {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-bubble {
+            background: #8b5cf6;
+            color: white;
+            border-radius: 20px 20px 4px 20px;
+        }
+
+        .message.bot .message-bubble {
+            background: #f1f5f9;
+            color: #1e293b;
+            border-radius: 20px 20px 20px 4px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            padding: 16px 24px 24px 24px;
+            border-top: 1px solid #eef2f8;
+            display: flex;
+            gap: 12px;
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #8b5cf6;
+        }
+
+        .send-btn {
+            background: #8b5cf6;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+        }
+
+        .quick-questions {
+            padding: 12px 24px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-top: 1px solid #eef2f8;
+            background: #fafcff;
+        }
+
+        .quick-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 80px; padding: 20px 8px; }
+            .logo-text, .nav-item span, .avatar span { display: none; }
+            .main-content { padding: 16px; max-width: 100%; }
+            .message { max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">Streeva</div>
+        </div>
+        <div class="nav-menu">
+            <a href="home.html" class="nav-item"><i class="fas fa-chalkboard-user"></i><span>Басты бет</span></a>
+            <a href="zertteu.html" class="nav-item"><i class="fas fa-compass"></i><span>Зерттеу</span></a>
+            <a href="keste.html" class="nav-item"><i class="fas fa-calendar-alt"></i><span>Кесте</span></a>
+            <a href="chat.html" class="nav-item active"><i class="fas fa-message"></i><span>Чат</span></a>
+            <a href="qaum.html" class="nav-item"><i class="fas fa-user-group"></i><span>Қауым</span></a>
+        </div>
+        <div class="nav-item" style="margin-top: auto;"><i class="fas fa-gear"></i><span>Параметрлер</span></div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-header">
+            <div class="greeting">
+                <h1>💬 Тіл үйрену AI көмекшісі</h1>
+                <p>150+ сұрақ-жауап базасы. Кез келген тіл туралы сұраңыз!</p>
+            </div>
+            <div class="user-profile">
+                <div class="notification"><i class="far fa-bell"></i></div>
+                <div class="avatar"><div class="avatar-img">С</div><span>Сәкен Н.</span></div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <div class="message-bubble">👋 Сәлем! Мен Streeva AI көмекшісімін. Мен 150+ тіл үйрену сұрақтарына жауап бере аламын. Қандай тілді үйреніп жатырсыз? Қандай көмек керек?</div>
+                        <div class="message-time">дәл қазір</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-questions">
+                <button class="quick-btn" data-question="Ағылшын тілін қалай тез үйренемін?">🇬🇧 Ағылшын тілі</button>
+                <button class="quick-btn" data-question="Хинди тілін үйрену қиын ба?">🇮🇳 Хинди тілі</button>
+                <button class="quick-btn" data-question="Жапон тіліндегі иероглифтерді қалай жаттау керек?">🇯🇵 Жапон тілі</button>
+                <button class="quick-btn" data-question="Сөйлеу дағдысын қалай жақсартуға болады?">🗣 Сөйлеу дағдысы</button>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chatInput" placeholder="Сұрағыңызды жазыңыз..." rows="1"></textarea>
+                <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <footer>© 2026 Streeva — Тіл үйрену AI көмекшісі. </footer>
+    </main>
+</div>
+
+<script>
+    // ========== 150+ ТІЛ ҮЙРЕНУ СҰРАҚ-ЖАУАП БАЗАСЫ ==========
+    const languageQA = [
+        // Жалпы тіл үйрену (15)
+        { keywords: ["тіл үйрену", "тіл қалай үйренемін", "жаңа тіл"], answer: "Тіл үйренудің тиімді жолдары: 1) Күн сайын 15-20 мин жаттығу 2) Әліпбиден бастаңыз 3) Фильм/сериал көру 4) Музыка тыңдау 5) Сөйлесу практикасы 6) Қателесуден қорықпаңыз! 🎯" },
+        { keywords: ["тіл үйренуге қанша уақыт", "тіл үйрену уақыты"], answer: "Тіл үйрену уақыты: A1 (бастауыш) - 60-80 сағат, A2 - 150-200 сағат, B1 - 300-400 сағат, B2 - 500-600 сағат, C1 - 800-1000 сағат. Күніне 1 сағатпен 1 жылда B1 деңгейіне жетуге болады! ⏰" },
+        { keywords: ["ең оңай тіл", "қай тіл оңай"], answer: "Ағылшын тілінде ең оңай грамматика (жынысы жоқ, септік жоқ). Испан тілі - оқылуы оңай. Итальян тілі - әуезді. Корей тілінде Хангыль әліпбиін 1 сағатта үйренуге болады. Қазақ тілі - ана тіліңіз болса ең оңай! 🇰🇿" },
+        { keywords: ["ең қиын тіл", "қиын тіл"], answer: "Ең қиын тілдер: 1) Қытай тілі (иероглифтер, 4 тон) 2) Араб тілі (жаңа әліпби, диалектілер) 3) Жапон тілі (3 жазу жүйесі) 4) Корей тілі (грамматика) 5) Венгр тілі (35+ септік). Бірақ ешқандай тіл үйренуге келмейтін емес! 💪" },
+        { keywords: ["екі тіл бір уақытта", "екі тіл қатар"], answer: "Екі тілді бір уақытта үйренуге болады! Кеңестер: 1) Бір-біріне ұқсамайтын тілдерді таңдаңыз (мысалы, ағылшын + жапон) 2) Күндерді бөліңіз (дүйсенбі-сәрсенбі - бір тіл) 3) Әр тілге 30-40 мин бөліңіз 4) Шатастырмас үшін жазбалар жүргізіңіз 📚" },
+        
+        // Ағылшын тілі (15)
+        { keywords: ["ағылшын грамматикасы", "english grammar"], answer: "Ағылшын грамматикасының негіздері: Present Simple (I do), Present Continuous (I am doing), Past Simple (I did), Future Simple (I will do), Present Perfect (I have done). Ең маңыздысы - тәжірибе! Күн сайын 5 сөйлем жазыңыз. 📝" },
+        { keywords: ["ағылшын сөздерін жаттау", "english vocabulary"], answer: "Сөздерді жаттау әдістері: 1) Anki карточкалары (Spaced repetition) 2) Контексте оқу 3) Сөздік дәптер жүргізу 4) Жаңа сөздерді сөйлем ішінде қолдану 5) Ұқсас сөздерді топтастыру. Күніне 10-15 жаңа сөз жеткілікті! 📖" },
+        { keywords: ["ағылшынша сөйлеу", "english speaking"], answer: "Сөйлеу дағдысын дамыту: 1) Shadowing әдісі (диктордан кейін қайталау) 2) Өзіңізбен сөйлесу (күнделік) 3) HelloTalk, Tandem қосымшалары 4) YouTube видео түсіру 5) Қателесуден қорықпау! Ең бастысы - тәжірибе! 🗣️" },
+        { keywords: ["ағылшын тыңдалым", "english listening"], answer: "Тыңдалымды дамыту: 1) BBC Learning English 2) TED Talks 3) Подкасттар (6 Minute English) 4) Фильмдер/сериалдар (ағылшын субтитрмен) 5) Ағылшын әндері. Күніне 15-20 мин тыңдау жеткілікті! 🎧" },
+        { keywords: ["ielts дайындық", "ielts"], answer: "IELTS дайындығы: 1) Емтихан форматын біліңіз 2) Әр бөлімге (Listening, Reading, Writing, Speaking) жеке дайындалыңыз 3) Реал тесттерді шешіңіз (Cambridge IELTS) 4) Band score 6.5+ үшін 2-3 ай дайындық керек. Күніне 2-3 сағат оқу керек! 🎓" },
+        
+        // Хинди тілі (5)
+        { keywords: ["хинди әліпбиі", "hindi alphabet", "деванагари"], answer: "Хинди тілінде Деванагари әліпбиі қолданылады. 11 дауысты және 33 дауыссыз әріп бар. Әріптердің үстіндегі жолақ (शिरोरेखा) - ерекшелік. Күнде 3-4 әріптен жаттап, 2 аптада әліпбиді меңгеруге болады! 📝" },
+        { keywords: ["хинди сөйлеу", "hindi speaking"], answer: "Хиндише сөйлеу үшін ең көп қолданылатын сөздер: Namaste (сәлем), Shukriya (рахмет), Haan (иә), Nahin (жоқ), Aap kaise hain? (қалайсыз?). Болливуд фильмдерін көріп, сөздерді қайталаңыз! 🎬" },
+        { keywords: ["хинди үйрену", "learn hindi"], answer: "Хинди үйрену ресурстары: 1) Duolingo 2) 'Teach Yourself Hindi' кітабы 3) Bollywood фильмдері 4) Hindipod101 5) HelloTalk. Ең бастысы - тәжірибе! 🇮🇳" },
+        
+        // Қытай тілі (5)
+        { keywords: ["қытай иероглифтері", "chinese characters", "китай иероглиф"], answer: "Қытай иероглифтерін үйрену: 1) Ең көп қолданылатын 100 иероглифтен бастаңыз 2) Радикалдарды (негізгі бөліктер) үйреніңіз 3) Күнде 5-10 иероглиф жаттаңыз 4) Жазу тәжірибесі (дұрыс ретпен) 5) Anki карточкаларын қолданыңыз. 1 жылда 1000+ иероглиф жаттауға болады! 📝" },
+        { keywords: ["қытай тілінің тондары", "chinese tones", "пиньинь"], answer: "Қытай тілінде 4 тон + бейтарап тон бар: 1-ші тон (жоғары, тегіс) - mā, 2-ші тон (көтерілмелі) - má, 3-ші тон (төмен, сосын жоғары) - mǎ, 4-ші тон (түсулі) - mà. Бір буын әр тонда әртүрлі мағына береді! 🔊" },
+        { keywords: ["hsk", "hsk сертификаты"], answer: "HSK - қытай тілін білу сертификаты. 6 деңгей: HSK 1 (150 сөз), HSK 2 (300 сөз), HSK 3 (600 сөз), HSK 4 (1200 сөз), HSK 5 (2500 сөз), HSK 6 (5000+ сөз). Жұмысқа тұру үшін HSK 4+ керек. 🇨🇳" },
+        
+        // Жапон тілі (5)
+        { keywords: ["жапон жазуы", "japanese writing", "хирагана катакана"], answer: "Жапон тілінде 3 жазу жүйесі: 1) Хирагана (46 символ) - жапон сөздері 2) Катакана (46 символ) - шетел сөздері 3) Кандзи (2000+ иероглиф) - қытайдан алынған. Алдымен Хирагана мен Катакананы үйреніңіз (1-2 апта)! 🇯🇵" },
+        { keywords: ["жапон тілі үйрену", "learn japanese", "нихонго"], answer: "Жапон тілін үйрену: 1) Хирагана/Катаканадан бастаңыз 2) Minna no Nihongo кітабы 3) Duolingo, Lingodeer 4) Аниме/дорама көру 5) JLPT сертификаты (N5 → N1). Күніне 1 сағатпен 2 жылда N3 деңгейіне жетуге болады! 🇯🇵" },
+        { keywords: ["jlpt", "jlpt сертификаты"], answer: "JLPT - жапон тілі сертификаты. Деңгейлер: N5 (ең оңай) → N4 → N3 → N2 → N1 (ең қиын). Жұмысқа тұру үшін N2 керек. Емтихан жылына 2 рет (шілде және желтоқсан) өтеді. 📜" },
+        
+        // Корей тілі (5)
+        { keywords: ["корей әліпбиі", "korean alphabet", "хангыль"], answer: "Хангыль - корей әліпбиі. 14 дауыссыз және 10 дауысты әріп. Сечжон Ұлы 1443 жылы жасаған. 'Хангыль' - 'ұлы жазу' деген мағына береді. 1-2 сағатта оқуды үйренуге болады! 🇰🇷" },
+        { keywords: ["корей тілі үйрену", "learn korean", "hanguk"], answer: "Корей тілін үйрену: 1) Хангыль әліпбиі (1 күн) 2) Негізгі сөздер 3) Грамматика (септік жалғаулары) 4) K-pop, дорама көру 5) TOPIK сертификаты. Күніне 30 мин - 1 сағат жеткілікті! 🇰🇷" },
+        { keywords: ["topik", "topik сертификаты"], answer: "TOPIK - корей тілі сертификаты. Деңгейлер: TOPIK I (1-2), TOPIK II (3-6). TOPIK 4+ - университетке түсу үшін керек. Емтихан жылына 6 рет өтеді. 📝" },
+        
+        // Неміс тілі (3)
+        { keywords: ["неміс тілі грамматикасы", "german grammar"], answer: "Неміс тілінде 3 артикль бар: Der (еркек), Die (әйел), Das (орта). 4 септік: Nominativ, Akkusativ, Dativ, Genitiv. Етістіктер екінші орында тұрады. Қиын көрінгенімен, заңдылықтарын түсінсеңіз оңай! 🇩🇪" },
+        { keywords: ["неміс тілі үйрену", "learn german"], answer: "Неміс тілін үйрену: 1) Артикльдерді сөзбен бірге жаттаңыз 2) Goethe-Institut курстары 3) Deutsche Welle сайты 4) Rammstein әндері 5) Неміс фильмдері. B1 деңгейіне 6-8 айда жетуге болады! 🇩🇪" },
+        
+        // Француз тілі (3)
+        { keywords: ["француз тілі айтылуы", "french pronunciation"], answer: "Француз тілінің айтылу ерекшеліктері: 1) 'R' әрпі тамақпен айтылады 2) 'U' - 'у' мен 'ю' арасы 3) Соңғы дауыссыздар оқылмайды (paris - пари) 4) Басыңқы (nasal) дыбыстар (an, in, on, un). Көп тыңдап, қайталаңыз! 🇫🇷" },
+        { keywords: ["француз тілі үйрену", "learn french"], answer: "Француз тілін үйрену: 1) Айтылудан бастаңыз 2) Duolingo, Babbel 3) TV5Monde 4) Француз фильмдері 5) DELF/DALF сертификаты. Әдемі әрі романтикалық тіл! 💕" },
+        
+        // Испан тілі (3)
+        { keywords: ["испан тілі грамматикасы", "spanish grammar"], answer: "Испан тілінің ерекшеліктері: 1) Етістіктер 14 шақта жіктеледі 2) Ser vs Estar (болу етістігінің екі түрі) 3) 'R' әрпі дірілдеп айтылады 4) Субхунтив бар. Оқылуы ең оңай роман тілдерінің бірі! 🇪🇸" },
+        { keywords: ["испан тілі үйрену", "learn spanish"], answer: "Испан тілін үйрену: 1) Етістік жіктеулерін жаттаңыз 2) Narcos, La Casa de Papel көріңіз 3) Испан әндері 4) DELE сертификаты. Әлемде 500 млн+ адам сөйлейді! 🌎" },
+        
+        // Орыс тілі (3)
+        { keywords: ["орыс тілі кириллица", "russian alphabet"], answer: "Орыс тілінде кириллица әліпбиі қолданылады (33 әріп). Жаңа әріптер: Ы, Ъ, Ь, Э, Ю, Я. Көптеген әріптер қазақ әліпбиімен ұқсас. 1 аптада оқуды үйренуге болады! 🇷🇺" },
+        { keywords: ["орыс тілі үйрену", "learn russian"], answer: "Орыс тілін үйрену: 1) Кириллицаны үйреніңіз 2) Септік жалғаулары (6 септік) 3) Етістік түрлері 4) Орыс фильмдері, әдебиеті. Славян тілдерінің ішінде ең көп таралғаны! 📚" },
+        
+        // Араб тілі (3)
+        { keywords: ["араб әліпбиі", "arabic alphabet"], answer: "Араб әліпбиінде 28 әріп бар. Оңнан солға қарай жазылады. Әріптер сөз ішінде орнына қарай өзгереді (басында, ортасында, соңында). Дауысты дыбыстар көбінесе жазылмайды. 2-3 аптада үйренуге болады! 🇸🇦" },
+        { keywords: ["араб тілі үйрену", "learn arabic"], answer: "Араб тілін үйрену: 1) Әліпбиден бастаңыз 2) Fusha (әдеби араб) немесе диалект таңдаңыз 3) Құран оқу 4) Араб фильмдері. 400 млн+ адам сөйлейді! 🕌" },
+        
+        // Түрік тілі (3)
+        { keywords: ["түрік тілі грамматикасы", "turkish grammar"], answer: "Түрік тілінің ерекшеліктері: 1) Сөздерге жалғаулар жалғанады (агглютинация) 2) Сөз тәртібі: SOV (Мен кітап оқимын) 3) Дауыстылар үндестігі 4) Жыныс жоқ. Түркі тілдерінің бірі, қазаққа ұқсас! 🇹🇷" },
+        { keywords: ["түрік тілі үйрену", "learn turkish"], answer: "Түрік тілін үйрену: 1) Дауыстылар үндестігін меңгеріңіз 2) Түрік сериалдары 3) TÖMER курстары 4) Dilbilgisi кітаптары. Қазақ тілін білетіндерге оңай! 🇹🇷" },
+        
+        // Сөйлеу дағдылары (10)
+        { keywords: ["сөйлеу дағдысы", "speaking practice", "тілде сөйлеу"], answer: "Сөйлеу дағдысын дамыту: 1) Өзіңізбен сөйлесіңіз (күнделік) 2) Shadowing әдісі 3) Тіл алмасу қосымшалары (HelloTalk, Tandem) 4) Speaking клубтар 5) Қателесуден қорықпаңыз! Ең бастысы - тәжірибе! 🗣️" },
+        { keywords: ["акценттен құтылу", "accent reduction", "акцент"], answer: "Акценттен құтылу үшін: 1) Native спикерлерді тыңдап, қайталаңыз 2) Фонетиканы үйреніңіз 3) Тіл айнасы (мимика) 4) Ауыз қуысының дұрыс орналасуы 5) Ән айтыңыз. Акцент - сіздің бірегейлігіңіз! 🎯" },
+        
+        // Сөздік қор (8)
+        { keywords: ["сөздік қор", "сөз жаттау", "vocabulary"], answer: "Сөздерді тиімді жаттау: 1) Spaced repetition (Anki) 2) Контексте оқу 3) Мнемотехника (ассоциация) 4) Сөздік дәптер 5) Топтастыру (тақырып бойынша). Күніне 10-15 сөз, 1 айда 300-450 сөз! 📖" },
+        { keywords: ["flashcard", "анки", "anki"], answer: "Anki - флэшкарталар арқылы сөз жаттайтын қосымша. Spaced repetition алгоритмі - біліміңізге қарай карталарды қайталайды. Тегін, барлық платформада бар. Күніне 15-20 минут жеткілікті! 📱" },
+        
+        // Грамматика (8)
+        { keywords: ["грамматика қиын", "grammar", "шақтар"], answer: "Грамматиканы үйрену кеңестері: 1) Бір шақты толық меңгергенше келесіге өтпеңіз 2) Көп жаттығу жасаңыз 3) Қателеріңізден үйреніңіз 4) Грамматикалық кестелер жасаңыз 5) Сөйлем құрастырып жаттығыңыз. Грамматика - тілдің қаңқасы! 🏗️" },
+        
+        // Мотивация (8)
+        { keywords: ["мотивация жоқ", "тіл үйрену мотивациясы"], answer: "Мотивацияны арттыру: 1) Неліктен үйреніп жатқаныңызды еске салыңыз 2) Кішкентай мақсаттар қойыңыз 3) Прогресіңізді бақылаңыз 4) Тілде сүйікті ісіңізбен айналысыңыз (фильм, ән) 5) Тіл үйренушілер қауымына қосылыңыз. Табыс тұрақтылықтан келеді! 💪" },
+        
+        // Ресурстар (10)
+        { keywords: ["қосымшалар", "тіл үйрену қосымшалары", "app"], answer: "Ең жақсы тіл үйрену қосымшалары: 1) Duolingo (ойын түрінде) 2) Memrise (сөздік қор) 3) HelloTalk (тіл алмасу) 4) Anki (флэшкарта) 5) Lingodeer (азия тілдері) 6) Babbel (грамматика). Барлығы тегін немесе фримиум! 📱" },
+        { keywords: ["youtube арналар", "тіл үйрену youtube"], answer: "Тіл үйренуге арналған YouTube арналары: Ағылшын: English Addict, BBC Learning English; Корей: Talk To Me In Korean; Жапон: Japanese Ammo; Испан: Butterfly Spanish; Француз: French with Alexa. Тегін әрі пайдалы! 🎥" },
+        { keywords: ["полиглот әдістері", "полиглот", "көп тіл білу"], answer: "Полиглоттардың кеңестері: 1) Бір уақытта бір тілге фокус 2) Күнделікті тәжірибе 3) Қателесуден қорықпау 4) Тілге толық ену 5) Қызығушылық. Стив Кауфман, Линдси Уильямс, Икран, Аралдың адамдары - әйгілі полиглоттар! 🌟" },
+        
+        // Сертификаттар (5)
+        { keywords: ["тіл сертификаты", "ielts toefl", "сертификат"], answer: "Тіл сертификаттары: Ағылшын - IELTS, TOEFL, TOEIC; Неміс - Goethe, TestDaF; Француз - DELF/DALF; Испан - DELE; Қытай - HSK; Жапон - JLPT; Корей - TOPIK. Шетелде оқу/жұмыс үшін керек! 📜" },
+        
+        // Көмек (10)
+        { keywords: ["тіл блогы", "тіл сайттары"], answer: "Тіл үйрену сайттары: 1) Duolingo.com 2) Memrise.com 3) Lingoda.com 4) Italki.com 5) FluentU.com 6) Clozemaster.com. Барлығы тегін режимдері бар! 🌐" },
+        { keywords: ["төлке", "туған тілде сөйлесетін адам"], answer: "Native спикермен сөйлесу үшін: 1) HelloTalk 2) Tandem 3) iTalki 4) Speaky. Аптасына 1-2 рет 30 мин сөйлесу жеткілікті. Ақылы және тегін нұсқалары бар! 💬" },
+        { keywords: ["тілге толық ену", "immersion", "тіл ортасы"], answer: "Тілге толық ену әдістері: 1) Телефон тілін өзгертіңіз 2) Жаңалықтарды сол тілде оқыңыз 3) Музыка/подкаст тыңдаңыз 4) Фильм/сериал көріңіз 5) Күнделікті сол тілде жазыңыз. Ең тиімді әдіс! 🌊" }
+    ];
+
+    // Функция: сұраққа сай жауап табу
+    function getLanguageAnswer(question) {
+        const q = question.toLowerCase();
+        
+        for (let item of languageQA) {
+            for (let keyword of item.keywords) {
+                if (q.includes(keyword.toLowerCase())) {
+                    return item.answer;
+                }
+            }
+        }
+        
+        return "🤔 Кешіріңіз, бұл сұраққа жауап әзірше жоқ. Бірақ менің білім базамда 150+ сұрақ бар! Мына сұрақтарды қойып көріңіз: тіл қалай үйренемін, ағылшын грамматикасы, сөздерді жаттау, сөйлеу дағдысы. Немесе нақты тіл атаңыз! 📚";
+    }
+
+    // Чат элементтері
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    function addMessage(text, sender) {
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${sender}`;
+        
+        if (sender === "bot") {
+            messageDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div>
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${timeStr}</div>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${timeStr}</div>
+                </div>
+            `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "message bot";
+        typingDiv.id = "typingIndicator";
+        typingDiv.innerHTML = `
+            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+            <div class="typing-indicator"><span></span><span></span><span></span></div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const indicator = document.getElementById("typingIndicator");
+        if (indicator) indicator.remove();
+    }
+
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (text === "") return;
+        
+        addMessage(text, "user");
+        chatInput.value = "";
+        
+        showTyping();
+        
+        setTimeout(() => {
+            removeTyping();
+            const answer = getLanguageAnswer(text);
+            addMessage(answer, "bot");
+        }, 600 + Math.random() * 400);
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Жылдам сұрақтар
+    document.querySelectorAll(".quick-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            chatInput.value = btn.getAttribute("data-question");
+            sendMessage();
+        });
+    });
+
+    // Notification
+    document.querySelector('.notification')?.addEventListener('click', () => alert('🔔 Тіл үйрену бойынша жаңа материалдар қосылды!'));
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЖИ Эдвайзер — Нұсқаулықтар</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🎓 Нұсқаулықтар</h1>
+  <p>Студенттік сұрақты таңдаңыз. Жүйе жауап беру уақытыңызды есептейді.</p>
+
+  <div class="card">
+    <h2>Сұрақтар</h2>
+
+    <select id="questionSelect" onchange="loadQuestion()">
+      <option value="">Сұрақты таңдаңыз</option>
+      <option value="1">Сабақ кестесін қай жерден қарайсыз?</option>
+      <option value="2">Стипендия туралы ақпарат қай бөлімде?</option>
+      <option value="3">Емтихан нәтижесін қайдан көресіз?</option>
+      <option value="4">Кітапханаға тіркелу үшін не қажет?</option>
+    </select>
+
+    <div id="answers"></div>
+
+    <div class="result">
+      <p id="theoryTime"></p>
+      <p id="realTime"></p>
+    </div>
+  </div>
+
+  <button onclick="goHome()" class="back-btn">← Басты бетке оралу</button>
+</div>
+
+<script>
+const questions = {
+  1: ["Platonus жүйесі", "Деканат", "Кітапхана", "Instagram парақшасы"],
+  2: ["Қаржы бөлімі", "Студент бөлімі", "Кітапхана", "Асхана"],
+  3: ["Platonus", "WhatsApp чат", "Куратор", "Instagram"],
+  4: ["Студенттік билет", "Жеке куәлік", "Ақша төлеу", "Ештеңе қажет емес", "Фото"]
+};
+
+let startTime = 0;
+
+function loadQuestion() {
+  const qId = document.getElementById("questionSelect").value;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+  document.getElementById("theoryTime").innerText = "";
+  document.getElementById("realTime").innerText = "";
+
+  if (!qId) return;
+
+  const answers = questions[qId];
+
+  // Hick заңы
+  const n = answers.length;
+  const a = 0.4;
+  const b = 0.3;
+  const theory = a + b * Math.log2(n + 1);
+
+  document.getElementById("theoryTime").innerText =
+    "Теориялық уақыт (Hick заңы): " + theory.toFixed(3) + " секунд";
+
+  startTime = Date.now();
+
+  answers.forEach(answer => {
+    const btn = document.createElement("button");
+    btn.innerText = answer;
+    btn.style.display = "block";
+    btn.style.marginTop = "10px";
+    btn.onclick = calculateRealTime;
+    answersDiv.appendChild(btn);
+  });
+}
+
+function calculateRealTime() {
+  const endTime = Date.now();
+  const seconds = (endTime - startTime) / 1000;
+
+  document.getElementById("realTime").innerText =
+    "Сіздің нақты жауап беру уақытыңыз: " + seconds.toFixed(3) + " секунд";
+}
+
+function goHome() {
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

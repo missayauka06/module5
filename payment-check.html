@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЖИ Эдвайзер — Төлемді тексеру</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">
+        <div class="mark">ЖИ</div>
+        <div>
+          <div class="sb-title">ЖИ Эдвайзер</div>
+          <div class="sb-sub">Төлем тексеру</div>
+        </div>
+      </div>
+
+      <nav class="sb-nav">
+        <a href="home.html">🏠 Басты</a>
+        <a href="guide.html">📘 Нұсқаулықтар</a>
+        <a class="active" href="payment-check.html">💳 Төлем тексеру</a>
+        <a href="training.html">🧠 Жаттығу</a>
+        <a href="strategy.html">🛡️ Стратегия</a>
+        <a href="about.html">ℹ️ Жоба туралы</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1>💳 Онлайн төлемді тексеру</h1>
+      <p class="muted">
+        Мәліметтерді енгізіңіз. Жүйе ықтимал қауіп деңгейін анықтайды.
+      </p>
+    </header>
+
+    <section class="grid2">
+
+      <div class="card">
+        <label class="label">Алушы атауы</label>
+        <input class="input" id="receiver" placeholder="Мысалы: Kaspi.kz">
+
+        <label class="label">Сома (₸)</label>
+        <input class="input" id="amount" placeholder="15000">
+
+        <label class="label">Сайт мекенжайы (егер бар болса)</label>
+        <input class="input" id="website" placeholder="https://example.com">
+
+        <div class="row">
+          <button class="btn" id="checkBtn">Тексеру</button>
+          <button class="btn ghost" id="clearBtn">Тазарту</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Талдау нәтижесі</h2>
+
+        <div class="totals">
+          <div class="muted">Қауіп деңгейі:</div>
+          <div class="price" id="riskLevel">—</div>
+
+          <div class="muted">Ұсыныс:</div>
+          <div id="advice">Мәлімет енгізіңіз.</div>
+        </div>
+
+        <div class="note">
+          Егер күмән болса — банкке немесе 1414 нөміріне хабарласыңыз.
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+  const receiver = document.getElementById("receiver");
+  const amount = document.getElementById("amount");
+  const website = document.getElementById("website");
+  const checkBtn = document.getElementById("checkBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  const riskLevel = document.getElementById("riskLevel");
+  const advice = document.getElementById("advice");
+
+  function analyze(){
+    let risk = 0;
+
+    const amt = parseInt(amount.value);
+    const site = website.value.trim();
+
+    if(!receiver.value) risk += 1;
+    if(isNaN(amt) || amt <= 0) risk += 1;
+    if(amt > 500000) risk += 2; // үлкен сома
+
+    if(site && !site.startsWith("https://")) risk += 2;
+
+    if(site && site.includes(".xyz")) risk += 2;
+
+    if(risk <= 1){
+      riskLevel.textContent = "Төмен 🟢";
+      advice.textContent = "Төлем қауіпсіз көрінеді. Дегенмен мұқият тексеріңіз.";
+    }
+    else if(risk <= 3){
+      riskLevel.textContent = "Орташа 🟡";
+      advice.textContent = "Қосымша тексеріңіз. Ресми сайт екеніне көз жеткізіңіз.";
+    }
+    else{
+      riskLevel.textContent = "Жоғары 🔴";
+      advice.textContent = "Бұл төлем қауіпті болуы мүмкін! Банкке хабарласыңыз.";
+    }
+  }
+
+  function clearForm(){
+    receiver.value = "";
+    amount.value = "";
+    website.value = "";
+    riskLevel.textContent = "—";
+    advice.textContent = "Мәлімет енгізіңіз.";
+  }
+
+  checkBtn.addEventListener("click", analyze);
+  clearBtn.addEventListener("click", clearForm);
+  </script>
+
+</body>
+</html>

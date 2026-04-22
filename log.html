@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вход</title>
+
+  <style>
+    body{
+      background:#111827;
+      color:white;
+      font-family:Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:24px;
+      margin:0;
+    }
+    .box{
+      width:360px;
+      background:#1f2937;
+      padding:22px;
+      border-radius:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    h2{ margin:0 0 14px; }
+    label{ display:block; margin:10px 0 6px; font-size:14px; opacity:.9; }
+    input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:#0b1220;
+      color:#fff;
+      outline:none;
+      box-sizing:border-box;
+    }
+    input:focus{ border-color: rgba(37, 99, 235, .75); }
+
+    button{
+      width:100%;
+      padding:10px 12px;
+      border:0;
+      border-radius:10px;
+      background:#2563eb;
+      color:#fff;
+      cursor:pointer;
+      font-size:15px;
+      margin-top:12px;
+    }
+    button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    .hint{ font-size:13px; opacity:.9; margin-top:8px; line-height:1.35; }
+    .bad{ color:#ef4444; }
+    .good{ color:#22c55e; }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+    .chip{
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      opacity:.95;
+    }
+    .chip.ok{ border-color: rgba(34,197,94,.6); }
+    .chip.no{ border-color: rgba(239,68,68,.6); }
+
+    .suggest{
+      margin-top:10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      padding: 10px;
+      display:none;
+    }
+    .suggest code{
+      display:block;
+      margin-top:6px;
+      font-size:14px;
+      background: #0b1220;
+      border:1px solid rgba(255,255,255,.10);
+      padding:8px 10px;
+      border-radius:10px;
+      word-break: break-all;
+    }
+    .row{ display:flex; gap:10px; margin-top:10px; }
+    .row button{ margin-top:0; background:#374151; }
+
+    .error{ color:#ef4444; margin-top:10px; font-size:14px; }
+    .link{ margin-top:15px; font-size:14px; }
+    .link a{ color:#60a5fa; text-decoration:none; }
+    .link a:hover{ text-decoration:underline; }
+
+    /* ✅ Таймер стилі */
+    .timer{
+      position:fixed;
+      top:16px;
+      right:16px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+      backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Таймер көрінетін жер -->
+  <div class="timer" id="timer">⏱ 0 сек</div>
+
+  <div class="box">
+    <h2>Кіру</h2>
+
+    <label for="login">Логин</label>
+    <input id="login" type="text" placeholder="Логин" autocomplete="username" />
+
+    <label for="password">Пароль</label>
+    <input id="password" type="password" placeholder="Пароль" autocomplete="current-password" />
+
+    <div id="status" class="hint bad">Парольді енгіз…</div>
+    <div class="chips" id="chips"></div>
+
+    <div class="suggest" id="suggestBox">
+      <div class="hint">Ұсынылатын күрделі пароль (copy жасап ал):</div>
+      <code id="suggestPwd"></code>
+      <div class="row">
+        <button type="button" id="useSuggestBtn">Осыны қолданам</button>
+        <button type="button" id="regenBtn">Жаңасын ұсын</button>
+      </div>
+      <div class="hint">Егер “жоқ” десең де, тексеру автоматты жүре береді.</div>
+    </div>
+
+    <button id="loginBtn" onclick="checkLogin()" disabled>Кіру
+    </button>
+
+    <p id="error" class="error"></p>
+
+    <p class="link">
+      Аккаунтың жоқ па?
+      <a href="register.html">Регистрация</a>
+    </p>
+  </div>
+
+<script>
+  /* ✅ Таймер логикасы */
+  const startTime = Date.now();
+  const timerEl = document.getElementById("timer");
+
+  function formatTime(totalSec){
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return (m > 0) ? `⏱ ${m} мин ${s} сек` : `⏱ ${s} сек`;
+  }
+
+  const timerInterval = setInterval(() => {
+    const sec = Math.floor((Date.now() - startTime) / 1000);
+    timerEl.textContent = formatTime(sec);
+  }, 1000);
+
+  const passwordEl = document.getElementById("password");
+  const loginBtn = document.getElementById("loginBtn");
+  const statusEl = document.getElementById("status");
+  const chipsEl = document.getElementById("chips");
+  const errorEl = document.getElementById("error");
+
+  const suggestBox = document.getElementById("suggestBox");
+  const suggestPwdEl = document.getElementById("suggestPwd");
+  const useSuggestBtn = document.getElementById("useSuggestBtn");
+  const regenBtn = document.getElementById("regenBtn");
+
+  function checkPassword(pwd){
+    return [
+      { label: "8+ символ", ok: pwd.length >= 8 },
+      { label: "1 ҮЛКЕН әріп", ok: /[A-Z]/.test(pwd) },
+      { label: "1 кіші әріп", ok: /[a-z]/.test(pwd) },
+      { label: "1 сан", ok: /[0-9]/.test(pwd) },
+      { label: "1 спецсимвол", ok: /[^A-Za-z0-9]/.test(pwd) },
+    ];
+  }
+
+  function renderRules(rules){
+    chipsEl.innerHTML = "";
+    for(const r of rules){
+      const div = document.createElement("div");
+      div.className = "chip " + (r.ok ? "ok" : "no");
+      div.textContent = (r.ok ? "✅ " : "❌ ") + r.label;
+      chipsEl.appendChild(div);
+    }
+  }
+
+  function missingText(rules){
+    const miss = rules.filter(r => !r.ok).map(r => r.label);
+    return miss.length ? ("Жетіспейді: " + miss.join(", ")) : "";
+  }
+
+  function generateStrongPassword(){
+    const upp = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const low = "abcdefghijkmnpqrstuvwxyz";
+    const dig = "23456789";
+    const spe = "!@#$%^&*_-+=?";
+    const all = upp + low + dig + spe;
+
+    const pick = s => s[Math.floor(Math.random() * s.length)];
+
+    let arr = [pick(upp), pick(low), pick(dig), pick(spe)];
+    while(arr.length < 12) arr.push(pick(all));
+
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join("");
+  }
+
+  function updateUI(){
+    const pwd = passwordEl.value;
+    const rules = checkPassword(pwd);
+    renderRules(rules);
+
+    if(!pwd){
+      statusEl.className = "hint bad";
+      statusEl.textContent = "Парольді енгіз…";
+      loginBtn.disabled = true;
+      suggestBox.style.display = "none";
+      suggestPwdEl.textContent = "";
+      errorEl.textContent = "";
+      return;
+    }
+
+    const okAll = rules.every(r => r.ok);
+
+    if(okAll){
+      statusEl.className = "hint good";
+      statusEl.textContent = "Пароль күрделі ✅";
+      loginBtn.disabled = false;
+      suggestBox.style.display = "none";
+      errorEl.textContent = "";
+    } else {
+      statusEl.className = "hint bad";
+      statusEl.textContent = missingText(rules);
+      loginBtn.disabled = true;
+
+      suggestBox.style.display = "block";
+      if(!suggestPwdEl.textContent) suggestPwdEl.textContent = generateStrongPassword();
+
+      errorEl.textContent = "Күрделі пароль жасамайынша кіре алмайсың.";
+    }
+  }
+
+  passwordEl.addEventListener("input", updateUI);
+
+  useSuggestBtn.addEventListener("click", () => {
+    passwordEl.value = suggestPwdEl.textContent;
+    updateUI();
+  });
+
+  regenBtn.addEventListener("click", () => {
+    suggestPwdEl.textContent = generateStrongPassword();
+  });
+
+  function checkLogin(){
+    const login = document.getElementById("login").value.trim();
+    const password = document.getElementById("password").value;
+
+    const savedLogin = localStorage.getItem("login");
+    const savedPassword = localStorage.getItem("password");
+
+    if(!savedLogin || !savedPassword){
+      errorEl.textContent = "Алдымен регистрациядан өт 🙂";
+      return;
+    }
+
+    if(login === savedLogin && password === savedPassword){
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+
+      // ✅ таймерді тоқтату
+      clearInterval(timerInterval);
+      timerEl.textContent = formatTime(seconds);
+
+      // ✅ окошко
+      alert("Сіз кіру формасын толтыруға " + seconds + " секунд жұмсадыңыз!");
+
+      window.location.href = "home.html";
+    } else {
+      errorEl.textContent = "Логин немесе пароль қате!";
+    }
+  }
+
+  window.checkLogin = checkLogin;
+  updateUI();
+</script>
+
+</body>
+</html>

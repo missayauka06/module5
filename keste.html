@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Streeva | Кесте - Сабақ кестесі</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+        }
+
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e9eef3;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            background: #8b5cf6;
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 6px 12px -6px rgba(139, 92, 246, 0.3);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 16px;
+            color: #5b6e8c;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: #f1f5fe;
+            color: #8b5cf6;
+        }
+
+        .nav-item:not(.active):hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .upgrade-card {
+            background: linear-gradient(135deg, #fef9e8, #fff4e0);
+            border-radius: 24px;
+            padding: 18px;
+            margin: 24px 0 20px;
+            border: 1px solid #ffe6c2;
+        }
+
+        .upgrade-card p {
+            font-size: 14px;
+            font-weight: 600;
+            color: #b45309;
+        }
+
+        .upgrade-card small {
+            font-size: 12px;
+            color: #9b6a3c;
+        }
+
+        .upgrade-btn {
+            background: white;
+            border: none;
+            padding: 8px 0;
+            margin-top: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #8b5cf6;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            max-width: calc(100% - 280px);
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .greeting h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .greeting p {
+            color: #5b6e8c;
+            margin-top: 6px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            background: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #eef2f8;
+            cursor: pointer;
+        }
+
+        .avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 6px 16px 6px 8px;
+            border-radius: 40px;
+            border: 1px solid #eef2f8;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* ===== WEEK TABS ===== */
+        .week-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .week-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .week-btn.active-week {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        .week-btn:hover:not(.active-week) {
+            background: #f1f5f9;
+        }
+
+        /* ===== SCHEDULE TABLE ===== */
+        .schedule-container {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid #eef2f8;
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .schedule-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .schedule-table tr:hover td {
+            background: #faf5ff;
+        }
+
+        .day-cell {
+            font-weight: 700;
+            color: #1e293b;
+            width: 120px;
+        }
+
+        .time-badge {
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #4f46e5;
+            display: inline-block;
+        }
+
+        .course-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .teacher-name {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .room-badge {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .empty-schedule {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid #e9edf2;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 80px;
+                padding: 20px 8px;
+            }
+            .logo-text, .nav-item span, .upgrade-card, .avatar span {
+                display: none;
+            }
+            .main-content {
+                padding: 20px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">Streeva</div>
+        </div>
+        <div class="nav-menu">
+            <a href="home.html" class="nav-item">
+                <i class="fas fa-chalkboard-user"></i>
+                <span>Басты бет</span>
+            </a>
+            <a href="zertteu.html" class="nav-item">
+                <i class="fas fa-compass"></i>
+                <span>Зерттеу</span>
+            </a>
+            <a href="keste.html" class="nav-item active">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Кесте</span>
+            </a>
+            <div class="nav-item" data-page="chat">
+                <i class="fas fa-message"></i>
+                <span>Чат</span>
+            </div>
+            <div class="nav-item" data-page="community">
+                <i class="fas fa-user-group"></i>
+                <span>Қауым</span>
+            </div>
+        </div>
+
+        <div class="upgrade-card">
+            <p>✨ Pro нұсқасына өтіңіз</p>
+            <small>Шексіз курс, AI нұсқаулық</small>
+            <button class="upgrade-btn">Жаңарту →</button>
+        </div>
+
+        <div class="nav-item" style="margin-top: auto;">
+            <i class="fas fa-gear"></i>
+            <span>Параметрлер</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="top-header">
+            <div class="greeting">
+                <h1>📅 Сабақ кестесі</h1>
+                <p>Апталық сабақ кестеңізді көріңіз.</p>
+            </div>
+            <div class="user-profile">
+                <div class="notification">
+                    <i class="far fa-bell"></i>
+                </div>
+                <div class="avatar">
+                    <div class="avatar-img">С</div>
+                    <span>Сәкен Н.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Апта таңдау -->
+        <div class="week-tabs">
+            <button class="week-btn active-week" data-week="1">1-апта (жұп)</button>
+            <button class="week-btn" data-week="2">2-апта (тақ)</button>
+        </div>
+
+        <!-- Кесте контейнері -->
+        <div class="schedule-container" id="scheduleContainer">
+            <!-- JavaScript арқылы толтырылады -->
+        </div>
+
+        <footer>
+            © 2026 Streeva — Сабақ кестесі. Өзгерістер болған жағдайда деканатқа хабарласыңыз.
+        </footer>
+    </main>
+</div>
+
+<script>
+    // 1-апта (жұп апта) кестесі
+    const week1Schedule = [
+        { day: "Дүйсенбі", time: "09:00 - 10:30", course: "Ағылшын тілі (Grammar)", teacher: "Айгүл М.", room: "A203" },
+        { day: "Дүйсенбі", time: "11:00 - 12:30", course: "Ағылшын тілі (Speaking)", teacher: "Джеймс Б.", room: "A205" },
+        { day: "Сейсенбі", time: "10:00 - 11:30", course: "Hindi грамматикасы", teacher: "Приянка Ш.", room: "B112" },
+        { day: "Сейсенбі", time: "13:00 - 14:30", course: "IT негіздері", teacher: "Ерлан Қ.", room: "C301" },
+        { day: "Сәрсенбі", time: "09:00 - 10:30", course: "Ағылшын тілі (Listening)", teacher: "Айгүл М.", room: "A203" },
+        { day: "Сәрсенбі", time: "11:00 - 12:30", course: "Urdu сөйлеу", teacher: "Фатима К.", room: "B105" },
+        { day: "Бейсенбі", time: "10:00 - 11:30", course: "Ағылшын тілі (Vocabulary)", teacher: "Джеймс Б.", room: "A205" },
+        { day: "Бейсенбі", time: "14:00 - 15:30", course: "Кәсіби этика", teacher: "Гүлмира С.", room: "D401" },
+        { day: "Жұма", time: "09:00 - 10:30", course: "Қазақ тілі", teacher: "Марат Т.", room: "B110" },
+        { day: "Жұма", time: "11:00 - 12:30", course: "Дене шынықтыру", teacher: "Сергей П.", room: "Спорт зал" }
+    ];
+
+    // 2-апта (тақ апта) кестесі
+    const week2Schedule = [
+        { day: "Дүйсенбі", time: "09:00 - 10:30", course: "Ағылшын тілі (Writing)", teacher: "Айгүл М.", room: "A203" },
+        { day: "Дүйсенбі", time: "13:00 - 14:30", course: "Ағылшын тілі (Reading)", teacher: "Джеймс Б.", room: "A205" },
+        { day: "Сейсенбі", time: "10:00 - 11:30", course: "Bengali мәдениеті", teacher: "Санам Ч.", room: "B112" },
+        { day: "Сейсенбі", time: "13:00 - 14:30", course: "Веб-бағдарламау", teacher: "Ерлан Қ.", room: "C301" },
+        { day: "Сәрсенбі", time: "11:00 - 12:30", course: "Tamil грамматикасы", teacher: "Лакшми Н.", room: "B105" },
+        { day: "Сәрсенбі", time: "14:00 - 15:30", course: "Психология", teacher: "Айжан Б.", room: "D402" },
+        { day: "Бейсенбі", time: "09:00 - 10:30", course: "Ағылшын тілі (Exam prep)", teacher: "Джеймс Б.", room: "A205" },
+        { day: "Бейсенбі", time: "14:00 - 15:30", course: "Маркетинг негіздері", teacher: "Әлихан С.", room: "D401" },
+        { day: "Жұма", time: "10:00 - 11:30", course: "Коллоквиум", teacher: "Айгүл М.", room: "A203" },
+        { day: "Жұма", time: "13:00 - 14:30", course: "Студенттік клуб", teacher: "Ерболат К.", room: "Акт зал" }
+    ];
+
+    let currentWeek = 1;
+    const container = document.getElementById("scheduleContainer");
+
+    function renderSchedule() {
+        const schedule = currentWeek === 1 ? week1Schedule : week2Schedule;
+        const days = ["Дүйсенбі", "Сейсенбі", "Сәрсенбі", "Бейсенбі", "Жұма", "Сенбі", "Жексенбі"];
+        
+        if (schedule.length === 0) {
+            container.innerHTML = `<div class="empty-schedule"><i class="fas fa-calendar-times" style="font-size: 48px; opacity: 0.5;"></i><p>Кесте жоқ</p></div>`;
+            return;
+        }
+
+        let tableHTML = `
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Күн</th>
+                        <th>Уақыт</th>
+                        <th>Пән</th>
+                        <th>Оқытушы</th>
+                        <th>Аудитория</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        schedule.forEach(item => {
+            tableHTML += `
+                <tr>
+                    <td class="day-cell">${item.day}</td>
+                    <td><span class="time-badge">${item.time}</span></td>
+                    <td>
+                        <div class="course-name">${item.course}</div>
+                    </td>
+                    <td class="teacher-name">${item.teacher}</td>
+                    <td><span class="room-badge">${item.room}</span></td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = tableHTML;
+    }
+
+    // Апта батырмалары
+    const weekBtns = document.querySelectorAll('.week-btn');
+    weekBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            weekBtns.forEach(b => b.classList.remove('active-week'));
+            btn.classList.add('active-week');
+            currentWeek = parseInt(btn.getAttribute('data-week'));
+            renderSchedule();
+        });
+    });
+
+    // Бастапқы рендер
+    renderSchedule();
+
+    // Навигация
+    const navItems = document.querySelectorAll('.nav-item[data-page]');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const page = this.getAttribute('data-page');
+            if (page === 'chat') alert('💬 Чат жақын арада іске қосылады');
+            else if (page === 'community') alert('👥 Қауым бөлімі дайындалуда');
+        });
+    });
+
+    // Upgrade button
+    const upgradeBtn = document.querySelector('.upgrade-btn');
+    if(upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => alert('🚀 Pro нұсқасы жақын арада!'));
+    }
+
+    // Notification
+    const notif = document.querySelector('.notification');
+    if(notif) {
+        notif.addEventListener('click', () => alert('🔔 Ертеңгі сабақтар: Ағылшын 09:00, IT 13:00'));
+    }
+</script>
+</body>
+</html>

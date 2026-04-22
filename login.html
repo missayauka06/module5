@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streeva | Тіркелу - Қауіпсіз пароль</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .logo-icon i {
+            font-size: 32px;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        /* Пароль күші индикаторы */
+        .strength-container {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            width: 0%;
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Пароль талаптары */
+        .requirements {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .requirements-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            margin-bottom: 6px;
+            color: #64748b;
+        }
+
+        .req-item.valid {
+            color: #22c55e;
+        }
+
+        .req-item.invalid {
+            color: #ef4444;
+        }
+
+        .req-item i {
+            width: 14px;
+            font-size: 11px;
+        }
+
+        /* Генератор */
+        .generator-box {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .generator-box input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: monospace;
+            background: white;
+        }
+
+        .gen-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .gen-btn:hover {
+            background: #7c3aed;
+        }
+
+        .copy-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .auth-link a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-msg {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-user-plus"></i></div>
+                <h1>Тіркелу</h1>
+                <p>Қауіпсіз пароль жасаңыз</p>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+            <div id="successMsg" class="success-msg"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Толық аты-жөні</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullName" placeholder="Мысалы: Сәкен Нұрланұлы" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="example@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Парольді енгізіңіз" required>
+                        <span class="password-toggle" onclick="togglePassword('password')">
+                            <i class="far fa-eye-slash"></i>
+                        </span>
+                    </div>
+                    
+                    <!-- Пароль күші -->
+                    <div class="strength-container">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text">
+                            <span id="strengthLabel">Пароль күші</span>
+                            <span id="strengthScore">0/5</span>
+                        </div>
+                    </div>
+
+                    <!-- Пароль талаптары -->
+                    <div class="requirements">
+                        <div class="requirements-title">📋 Пароль талаптары:</div>
+                        <div class="req-item" id="reqLength">
+                            <i class="fas fa-circle"></i> <span>Кемінде 8 символ</span>
+                        </div>
+                        <div class="req-item" id="reqUppercase">
+                            <i class="fas fa-circle"></i> <span>Бір үлкен әріп (A-Z)</span>
+                        </div>
+                        <div class="req-item" id="reqLowercase">
+                            <i class="fas fa-circle"></i> <span>Бір кіші әріп (a-z)</span>
+                        </div>
+                        <div class="req-item" id="reqNumber">
+                            <i class="fas fa-circle"></i> <span>Бір сан (0-9)</span>
+                        </div>
+                        <div class="req-item" id="reqSpecial">
+                            <i class="fas fa-circle"></i> <span>Бір арнайы символ (!@#$%^&*)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Парольді қайталаңыз</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Парольді қайта енгізіңіз" required>
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">
+                            <i class="far fa-eye-slash"></i>
+                        </span>
+                    </div>
+                    <div id="matchMsg" style="font-size: 12px; margin-top: 6px;"></div>
+                </div>
+
+                <!-- Пароль генераторы -->
+                <div class="generator-box">
+                    <input type="text" id="generatedPass" readonly placeholder="Күрделі пароль">
+                    <button type="button" class="gen-btn" onclick="generatePassword()">
+                        <i class="fas fa-dice-d6"></i> Жасау
+                    </button>
+                    <button type="button" class="copy-btn" onclick="copyPassword()">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>✅ Тіркелу</button>
+            </form>
+
+            <div class="auth-link">
+                Аккаунтыңыз бар ма? <a href="login.html">Кіру</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Пароль күшін тексеру функциясы
+        function checkPasswordStrength(password) {
+            let score = 0;
+            const checks = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*]/.test(password)
+            };
+            
+            if (checks.length) score++;
+            if (checks.uppercase) score++;
+            if (checks.lowercase) score++;
+            if (checks.number) score++;
+            if (checks.special) score++;
+            
+            return { score, checks };
+        }
+
+        // Пароль күшін UI көрсету
+        function updateStrengthUI() {
+            const password = document.getElementById('password').value;
+            const { score, checks } = checkPasswordStrength(password);
+            
+            // Күш жолағы
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            const scoreSpan = document.getElementById('strengthScore');
+            
+            let width = (score / 5) * 100;
+            let color = '#ef4444';
+            let text = 'Әлсіз пароль ❌';
+            
+            if (score === 5) {
+                color = '#22c55e';
+                text = 'Өте күшті пароль ✅';
+            } else if (score === 4) {
+                color = '#8b5cf6';
+                text = 'Күшті пароль 👍';
+            } else if (score === 3) {
+                color = '#f59e0b';
+                text = 'Орташа пароль ⚠️';
+            } else if (score === 2) {
+                color = '#ef4444';
+                text = 'Әлсіз пароль ❌';
+            } else {
+                color = '#ef4444';
+                text = 'Қауіпті пароль 🔴';
+            }
+            
+            fill.style.width = width + '%';
+            fill.style.backgroundColor = color;
+            label.innerHTML = text;
+            scoreSpan.innerHTML = score + '/5';
+            
+            // Талаптарды жаңарту
+            updateRequirement('reqLength', checks.length);
+            updateRequirement('reqUppercase', checks.uppercase);
+            updateRequirement('reqLowercase', checks.lowercase);
+            updateRequirement('reqNumber', checks.number);
+            updateRequirement('reqSpecial', checks.special);
+            
+            // Пароль сәйкестігін тексеру
+            checkPasswordMatch();
+            
+            // Тіркелу батырмасын активтеу
+            validateForm();
+        }
+
+        function updateRequirement(id, isValid) {
+            const element = document.getElementById(id);
+            if (isValid) {
+                element.classList.add('valid');
+                element.classList.remove('invalid');
+                element.innerHTML = '<i class="fas fa-check-circle"></i> ' + element.innerHTML.split('</i>')[1];
+            } else {
+                element.classList.add('invalid');
+                element.classList.remove('valid');
+                element.innerHTML = '<i class="fas fa-times-circle"></i> ' + element.innerHTML.split('</i>')[1];
+            }
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const matchMsg = document.getElementById('matchMsg');
+            
+            if (confirm === '') {
+                matchMsg.innerHTML = '';
+                matchMsg.style.color = '';
+                return true;
+            }
+            
+            if (password === confirm) {
+                matchMsg.innerHTML = '✅ Парольдер сәйкес';
+                matchMsg.style.color = '#22c55e';
+                return true;
+            } else {
+                matchMsg.innerHTML = '❌ Парольдер сәйкес емес';
+                matchMsg.style.color = '#ef4444';
+                return false;
+            }
+        }
+
+        function validateForm() {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const { score } = checkPasswordStrength(password);
+            const name = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (name && email && score >= 4 && password === confirm && password !== '') {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Күрделі пароль генераторы
+        function generatePassword() {
+            const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijkmnpqrstuvwxyz';
+            const numbers = '23456789';
+            const symbols = '!@#$%^&*';
+            const all = uppercase + lowercase + numbers + symbols;
+            
+            let password = '';
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += symbols[Math.floor(Math.random() * symbols.length)];
+            
+            for (let i = 0; i < 8; i++) {
+                password += all[Math.floor(Math.random() * all.length)];
+            }
+            
+            // Шашырату
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+            
+            document.getElementById('generatedPass').value = password;
+            document.getElementById('password').value = password;
+            document.getElementById('confirmPassword').value = '';
+            
+            updateStrengthUI();
+            checkPasswordMatch();
+            
+            const msg = document.getElementById('successMsg');
+            msg.textContent = '🔐 Күрделі пароль жасалды! Парольді көшіріп алыңыз.';
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+
+        function copyPassword() {
+            const passInput = document.getElementById('generatedPass');
+            passInput.select();
+            document.execCommand('copy');
+            
+            const msg = document.getElementById('successMsg');
+            msg.textContent = '📋 Пароль қойындыға көшірілді!';
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 2000);
+        }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.parentElement.querySelector('.password-toggle i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // Тіркелу
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Email форматын тексеру
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                showError('❌ Email дұрыс форматта емес!');
+                return;
+            }
+            
+            // Пайдаланушыларды алу
+            let users = JSON.parse(localStorage.getItem('streeva_users') || '[]');
+            
+            // Email бірегейлігін тексеру
+            if (users.find(u => u.email === email)) {
+                showError('❌ Бұл email бұрын тіркелген!');
+                return;
+            }
+            
+            // Жаңа пайдаланушыны сақтау
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('streeva_users', JSON.stringify(users));
+            
+            // Сессия бастау
+            localStorage.setItem('streeva_session', JSON.stringify({
+                email: email,
+                name: name,
+                loginTime: Date.now()
+            }));
+            
+            showSuccess('✅ Тіркелу сәтті аяқталды! Басты бетке өту...');
+            
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 1500);
+        });
+
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSuccess(msg) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = msg;
+            successDiv.style.display = 'block';
+        }
+
+        // Оқиғаларды байланыстыру
+        document.getElementById('password').addEventListener('input', updateStrengthUI);
+        document.getElementById('confirmPassword').addEventListener('input', () => {
+            checkPasswordMatch();
+            validateForm();
+        });
+        document.getElementById('fullName').addEventListener('input', validateForm);
+        document.getElementById('email').addEventListener('input', validateForm);
+        
+        // Бастапқы тексеру
+        updateStrengthUI();
+    </script>
+</body>
+</html>

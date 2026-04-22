@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="chat">
+  <h2>🤖 AI Chat</h2>
+
+  <div id="messages"></div>
+
+  <div class="input">
+    <input id="text" placeholder="Напиши..." />
+    <button onclick="send()">Отправить</button>
+  </div>
+</div>
+
+<script>
+async function send() {
+  const input = document.getElementById("text");
+  const msg = input.value;
+
+  if (!msg) return;
+
+  const messages = document.getElementById("messages");
+
+  messages.innerHTML += `<div class="user">Ты: ${msg}</div>`;
+
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ message: msg })
+  });
+
+  const data = await res.json();
+
+  messages.innerHTML += `<div class="bot">Бот: ${data.reply}</div>`;
+
+  input.value = "";
+}
+</script>
+
+</body>
+</html>

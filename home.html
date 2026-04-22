@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Streeva | Тіл үйрену платформасы</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f9;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        /* ===== LAYOUT ===== */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e9eef3;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.2s;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            background: #8b5cf6;
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 6px 12px -6px rgba(139, 92, 246, 0.3);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 16px;
+            color: #5b6e8c;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: #f1f5fe;
+            color: #8b5cf6;
+        }
+
+        .nav-item:not(.active):hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .upgrade-card {
+            background: linear-gradient(135deg, #fef9e8, #fff4e0);
+            border-radius: 24px;
+            padding: 18px;
+            margin: 24px 0 20px;
+            border: 1px solid #ffe6c2;
+        }
+
+        .upgrade-card p {
+            font-size: 14px;
+            font-weight: 600;
+            color: #b45309;
+        }
+
+        .upgrade-card small {
+            font-size: 12px;
+            color: #9b6a3c;
+        }
+
+        .upgrade-btn {
+            background: white;
+            border: none;
+            padding: 8px 0;
+            margin-top: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #8b5cf6;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            max-width: calc(100% - 280px);
+        }
+
+        /* header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .greeting h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .greeting p {
+            color: #5b6e8c;
+            margin-top: 6px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            background: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #eef2f8;
+            cursor: pointer;
+        }
+
+        .avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 6px 16px 6px 8px;
+            border-radius: 40px;
+            border: 1px solid #eef2f8;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* warning banner */
+        .warning-banner {
+            background: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 14px 20px;
+            border-radius: 20px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .warning-text strong {
+            color: #b45309;
+        }
+
+        .feature-discussion {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #edf2f7;
+        }
+
+        .feature-discussion h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-discussion p {
+            color: #475569;
+        }
+
+        /* courses grid */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin: 32px 0 20px 0;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            border: 1px solid #eef2f8;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.08);
+            border-color: #e2e8f0;
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .course-emoji {
+            font-size: 32px;
+        }
+
+        .course-title {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .topic-list {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .topic-list li {
+            font-size: 14px;
+            padding: 8px 0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .topic-list li i {
+            font-size: 12px;
+            color: #8b5cf6;
+            width: 20px;
+        }
+
+        .badge-new {
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 11px;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid #e9edf2;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 80px;
+                padding: 20px 8px;
+            }
+            .logo-text, .nav-item span:not(.nav-icon), .upgrade-card, .avatar span {
+                display: none;
+            }
+            .main-content {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- SOL SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">Streeva</div>
+        </div>
+        <div class="nav-menu">
+    <a href="home.html" class="nav-item">
+        <i class="fas fa-chalkboard-user"></i>
+        <span>Басты бет</span>
+    </a>
+    
+    <a href="zertteu.html" class="nav-item">
+        <i class="fas fa-compass"></i>
+        <span>Зерттеу</span>
+    </a>
+    
+    <a href="keste.html" class="nav-item active">
+      <i class="fas fa-calendar-alt"></i>
+      <span>Кесте</span>
+    </a>
+    
+    <a href="chat.html" class="nav-item active">
+      <i class="fas fa-message"></i>
+      <span>Чат</span>
+    </a>
+    
+    <a href="qaum.html" class="nav-item active">
+      <i class="fas fa-user-group"></i>
+      <span>Қауым</span>
+    </a>
+  </div>
+
+        <div class="upgrade-card">
+            <p>✨ Pro нұсқасына өтіңіз</p>
+            <small>Шексіз курс, AI нұсқаулық</small>
+            <button class="upgrade-btn">Жаңарту →</button>
+        </div>
+
+        <div class="nav-item" style="margin-top: auto;">
+            <i class="fas fa-gear"></i>
+            <span>Параметрлер</span>
+        </div>
+    </aside>
+
+    <!-- ОРТАЛЫҚ БӨЛІМ -->
+    <main class="main-content">
+        <div class="top-header">
+            <div class="greeting">
+                <h1>Қайырлы таң, Аяулым ✨</h1>
+                <p>Streeva әлеміне қош келдіңіз. Басымдықты ескертулерді тексеріңіз.</p>
+            </div>
+            <div class="user-profile">
+                <div class="notification">
+                    <i class="far fa-bell"></i>
+                </div>
+                <div class="avatar">
+                    <div class="avatar-img">А</div>
+                    <span style="font-weight: 500;">Аяулым М.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning / ескерту -->
+        <div class="warning-banner">
+            <div class="warning-text">
+                <strong>⚠️ Басымдық ескертуі</strong> — Ағылшын грамматикасы бойынша тест ертең аяқталады.
+            </div>
+            <i class="fas fa-chevron-right" style="color:#f59e0b;"></i>
+        </div>
+
+        <!-- Feature Discussion (суреттегі секция) -->
+        <div class="feature-discussion">
+            <h3><i class="fas fa-robot" style="color:#8b5cf6; margin-right: 10px;"></i> Feature Discussion</h3>
+            <p><strong>Smart Tutoring</strong> — "Student Dashboard" ішіндегі жаңа мүмкіндік. AI чат арқылы кез келген тілдік сұраққа жауап алып, жеке ұсыныстар қараңыз. Бұл позиция чаттың маңыздылығын түсіндіреді.</p>
+        </div>
+
+        <!-- MY COURSES -->
+        <div class="section-title">
+            <h2 style="font-weight: 700;">📚 Менің курстарым</h2>
+            <span class="badge-new" style="background:#f1f5f9;">14+ тіл</span>
+        </div>
+
+        <div class="courses-grid" id="coursesContainer">
+            <!-- JavaScript арқылы курстар толтырылады -->
+        </div>
+        <footer>
+            © 2026 Streeva — интеллектуалды тіл платформасы
+        </footer>
+    </main>
+</div>
+
+<script>
+    // Толық курс деректері (суреттегі тілдер негізінде)
+    const languages = [
+        { name: "English", color: "#2563eb", emoji: "🇬🇧", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Hindi", color: "#e67e22", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Urdu", color: "#16a34a", emoji: "🇵🇰", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Bengali", color: "#d97706", emoji: "🇧🇩", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Tamil", color: "#ea580c", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Telugu", color: "#9333ea", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Marathi", color: "#0d9488", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Gujarati", color: "#c2410c", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Konkani", color: "#b45309", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Malayalam", color: "#4f46e5", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Punjabi", color: "#db2777", emoji: "🇮🇳", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] },
+        { name: "Sinhala", color: "#0284c7", emoji: "🇱🇰", topics: ["Grammar", "Vocabulary", "Speaking", "Listening"] }
+    ];
+
+    function renderCourses() {
+        const container = document.getElementById('coursesContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        languages.forEach(lang => {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            
+            // Header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'course-header';
+            headerDiv.innerHTML = `
+                <div class="course-emoji">${lang.emoji}</div>
+                <div class="course-title" style="color:${lang.color};">${lang.name}</div>
+            `;
+            
+            // Topics list
+            const topicList = document.createElement('ul');
+            topicList.className = 'topic-list';
+            
+            lang.topics.forEach(topic => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-circle" style="font-size: 6px;"></i> ${lang.name} ${topic}`;
+                topicList.appendChild(li);
+            });
+            
+            // Бонустық прогресс сызығы (smooth)
+            const progressWrap = document.createElement('div');
+            progressWrap.style.marginTop = '12px';
+            progressWrap.innerHTML = `
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                    <span>Үлгерімің</span>
+                    <span>45%</span>
+                </div>
+                <div style="background: #e2e8f0; border-radius: 20px; height: 6px; width: 100%;">
+                    <div style="background: ${lang.color}; width: 45%; height: 6px; border-radius: 20px;"></div>
+                </div>
+            `;
+            
+            card.appendChild(headerDiv);
+            card.appendChild(topicList);
+            card.appendChild(progressWrap);
+            container.appendChild(card);
+        });
+        
+        // қосымша карточка "AI Coach"
+        const extraCard = document.createElement('div');
+        extraCard.className = 'course-card';
+        extraCard.style.background = 'linear-gradient(145deg, #faf5ff, #ffffff)';
+        extraCard.innerHTML = `
+            <div class="course-header">
+                <div class="course-emoji">🤖</div>
+                <div class="course-title" style="color:#8b5cf6;">AI Tutor</div>
+            </div>
+            <ul class="topic-list">
+                <li><i class="fas fa-microphone-alt"></i> Жаттығу сөйлеу</li>
+                <li><i class="fas fa-sparkles"></i> Жеке жоспар</li>
+                <li><i class="fas fa-comment-dots"></i> 24/7 чат көмек</li>
+            </ul>
+            <div style="margin-top: 12px;">
+                <span class="badge-new">🔮 Жаңа</span>
+            </div>
+        `;
+        container.appendChild(extraCard);
+    }
+    
+    renderCourses();
+    
+    // қосымша: кейбір навигациялық әсерлер (консольге шығармай)
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            navItems.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            if(this.querySelector('span')?.innerText === 'Басты бет') {
+                // қайта жүктеусіз скролл
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert(`"${this.querySelector('span')?.innerText || 'бөлім'}" әзірлену үстінде 🌟`);
+            }
+        });
+    });
+    
+    // upgrade button
+    const upgradeBtn = document.querySelector('.upgrade-btn');
+    if(upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+            alert('🚀 Pro нұсқасы жақын арада қолжетімді болады!');
+        });
+    }
+    
+    // notification click
+    const notif = document.querySelector('.notification');
+    if(notif) {
+        notif.addEventListener('click', () => {
+            alert('🔔 Сізде 3 жаңа хабарландыру бар: AI ұсыныстары мен жаңа курс қосылды.');
+        });
+    }
+</script>
+</body>
+</html>
+```

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Advisor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="mark">EN</div>
+      <div>
+        <div class="sb-title">EN Market</div>
+        <div class="sb-sub">AI Advisor</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <a href="home.html">🏠 Басты</a>
+      <a href="shop.html">🛍️ Магазин</a>
+      <a href="cart.html">🛒 Корзина</a>
+      <a href="game.html">🎮 Game</a>
+      <a class="active" href="ai.html">🤖 AI</a>
+    </nav>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="card">
+    <h2>🤖 AI Advisor</h2>
+
+    <div id="chat" style="height:400px; overflow:auto; margin:15px 0;"></div>
+
+    <div class="row">
+      <input id="input" class="input" placeholder="Сұрақ жаз..." />
+      <button class="btn" onclick="send()">Жіберу</button>
+    </div>
+  </div>
+</main>
+
+<script src="ai.js"></script>
+</body>
+</html>
